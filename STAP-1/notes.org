@@ -1,0 +1,43 @@
+#+TITLE: My Notes for "Symmetric Techniques for Advanced Protocols: What *are* They?"
+
+* What is the Purpose of a Symmetric Primitive
+** Fitness for purpose
+The point to drive home in this section is that *performance* has always been the guiding criteria when choosing and designing symmetric primitives. However, "performance" can only be defined within a specific *context*.
+
+*** Stupid example: Solitaire
+The stream cipher intended to be implemented using a deck of cards.
+*** More concrete example: the AES
+Intended to be efficient in hardware, but mostly on CPUs, hence the usage of 8-bit operations and lookup tables.
+*** Lightweight cryptography
+What is "lightweight" cryptography?
+
+- lightweight in software? :: focus on operations corresponding to cheap CPU instructions (that are cheap even on micro-controllers), with a focus on constant time. ARX is very good for that. But what about masking? ARX is very bad for that.
+  
+- lightweight in hardware? :: focus on low gate count... but: low energy consumption? low power consumption? low latency? high throughput/area figure of merit? All these requirements are related, but not the same, and can be at odds with each other (low area/high throughput).
+
+- lightweight in security? :: before the competition, there was a lot of discussions about whether 80-bit keys were big enough. Is a security compromise acceptable?
+
+- lightweight in number of primitive? :: an "old school" stack based on the AES for encryption, SHA-256 for hashing/a MAC can be nice; a single primitive providing all functionalities could be better. Is versatility important? Is an NLFSR-based MAC "lightweight"?
+  
+*** Conclusion
+"Security" and "Efficiency" are concepts with highly context-dependent definitions. What we will call the "usual" primitives are intended to provide answers for different definitions of these terms, hence a great variety among them.
+
+** Interaction with a higher level protocol
+To understand what is needed from a primitive, we need to look at how they are used. This is dictated by the platform intended to run them (big server, micro-controller, smartcard...), as we have seen, but not only: the protocols they will be a part of also play a crucial role.
+
+Examples of the symmetric primitives used for web encryption and for RAM encryption.
+
+* "Advanced" Protocols
+** Intended Goals
+** Arithmetic Circuit
+** Evaluation vs. Verification
+** Examples
+*** R1CS for ZK arguments
+*** FHE
+**** TFHE
+**** Other FHE
+
+* Symmetric Techniques for Advanced Protocols
+** History of the field
+I would argue it's not really a field
+** 
