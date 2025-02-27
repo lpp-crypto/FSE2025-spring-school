@@ -29,13 +29,13 @@ Examples of the symmetric primitives used for web encryption and for RAM encrypt
 
 * "Advanced" Protocols
 ** Intended Goals
-** Arithmetic Circuit
-** Evaluation vs. Verification
-** Examples
-*** R1CS for ZK arguments
-*** FHE
-**** TFHE
-**** Other FHE
+While cryptography has mostly focused on providing the algorithms able to ensure confidentiality, integrity, and authentication for data at rest or in transit, things are changing. These problems are, *to some extent*, solved. Rather, the main issues related to them are more on the engineering side: *in theory*, we know how to do these things.
+
+The new frontier consists in providing guarantees about an entire computation. What does it mean?
+
+
+** Different Protocols
+** Arithmetization
 
 * Symmetric Techniques for Advanced Protocols
 ** History of the field

@@ -1,4 +1,4 @@
-% Time-stamp: <2025-02-26 18:15:25>
+% Time-stamp: <2025-02-27 16:52:48>
 
 
 \documentclass[presentation,aspectratio=1610]{beamer}
@@ -21,7 +21,11 @@
 
 
 \defcolvar{n}{n}{red}
-\defcolvar{l}{\ell}{blue}
+\defcolvar{alpha}{\alpha}{red}
+\defcolvar{S}{S}{darkgreen}
+\defcolvar{x}{x}{blue}
+\defcolvar{y}{y}{blue}
+\defcolvar{q}{q}{red}
 
 \title{Symmetric Techniques for Advanced Protocols: What *are* They?}
 \author[Léo Perrin]{Léo Perrin\inst{1} }
@@ -166,7 +170,7 @@
   \begin{itemize}
     \setlength\itemsep{1cm}
     \large
-  \item A symmetric primitive is very \alert{small} (but crucial) cog in a
+  \item A symmetric primitive is a very \alert{small} (but crucial) cog in a
     very big machine, \pause
   \item there are many \alert{different} ``big machines'', and \pause
   \item this has a \alert{huge influence} on what the primitive looks like.
@@ -174,7 +178,153 @@
 \end{frame}
 
 
-\section{New Protocols}
+\section{``Advanced'' Protocols}
+
+\subsection{General Introduction}
+
+\begin{frame}{Securing Data}
+  \begin{center}
+    {\Large Usually, we secure \alert{data} (at rest or in transit).}
+    
+    \only<1>{\includegraphics[width=9cm]{./figures/crypto}}
+    \only<2>{\includegraphics[width=9cm]{./figures/crypto-conf}}
+    \only<3>{\includegraphics[width=9cm]{./figures/crypto-conf-int}}
+    \only<4>{\includegraphics[width=9cm]{./figures/crypto-all}}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Securing Computation}
+  \begin{center}
+    {\Large More and more protocols intend to secure whole \alert{computations}.}
+
+    \vspace{0.8cm}
+    
+    \begin{description}
+    \item[FHE] \alert{F}ully \alert{H}omomorphic \alert{E}ncryption
+    \item[MPC] \alert{M}ulti \alert{P}arty \alert{C}omputations
+    \item[ZK-*] \alert{Z}ero \alert{K}nowledge- $[$ proof, argument... $]$
+    \end{description}
+  \end{center}
+\end{frame}
+
+
+\subsection{Different Protocols for Different Goals}
+
+\begin{frame}{FHE}
+  \begin{exampleblock}{Goal}
+    Allow a third party to perform some operations on encrypted ciphertext that correspond to meaningfull operations on the corresponding plaintext. \hfill \pause \alert{A form of commutation}    
+  \end{exampleblock}
+
+  \pause
+
+  \begin{center}
+    \begin{tikzpicture}
+      \draw (0, 0) node(A){Alice} ;
+      \draw (5, 0) node(B){Bob} ;
+      \draw[->] (0, -1) -- (5, -1) node[pos=0.5,above]{$C = F_K(P)$};
+      \draw[->] (5, -2) -- (0, -2) node[pos=0.5,above]{$C' = \mathcal{A}^{\kappa} F_K(P) = F_K\left(\mathcal{A}(P)\right)$};
+    \end{tikzpicture}
+  \end{center}
+
+  \pause
+
+  \begin{alertblock}{Trivial example}
+    XOR-ing a constant to a ciphertext obtained using a stream cipher XORs the same constant in the plaintext.
+  \end{alertblock}
+\end{frame}
+
+
+
+% !TODO! do MPC in general
+
+% !TODO! do masking as a particular case
+
+% !TODO! do ZK (SNARK?) Private set intersection?
+
+
+\subsection{One Approach to Rule Them All (?): Arithmetization}
+
+\begin{frame}{Arithmetization: General Principle}
+  %!TODO! write about arithmetization 
+  
+
+  \begin{center}
+    \includegraphics[width=8cm]{./figures/simpsons}
+  \end{center}
+  
+\end{frame}
+
+
+\begin{frame}{``Arithmetization-Oriented''?}
+  (the term was coined in~\cite{ToSC:AABDS20})
+  
+  \vfill
+
+  \begin{center}
+    \includegraphics[width=8cm]{./figures/simpsons}
+  \end{center}
+  
+  \vfill
+
+\end{frame}
+
+
+\section{Symmetric Primitives for Advanced Protocols}
+
+\subsection{FHE: Stream ciphers for transciphering}
+
+\begin{frame}{The case of TFHE}
+  Operates on $\Zmod{\myq}$, where $\myq$ can be anything, though:
+  more efficient if $\myq$ is smaller.
+  
+  \begin{exampleblock}{Operations allowed}
+    \begin{description}
+    \item[Linear Combinations] $\sum_i \myalpha_i \myx_i$, where the $\myalpha_i$ are constant while $\myx_i$ is input/key dependent.
+
+      \begin{itemize}
+      \item Costs almost nothing in terms of time/communication complexity...
+      \item But \alert{noise} increases
+      \end{itemize}
+      \pause
+    \item[PBS] (\alert{P}rogrammable \alert{B}oot\alert{S}trap) \hspace{0.5cm} $\myy \gets \myS(\myx)$
+      \begin{itemize}
+      \item Very time consuming...
+      \item But resets the noise to a \alert{base level} \pause
+      \item Can be composed with \alert{arbritrary table lookups!} \pause \hfill {\emph{\color{gray}$*$ S-box sounds $*$}}
+      \item If the ring size is even, it is better if it is \alert{nega-cyclic}
+      \end{itemize}
+    \end{description}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{TFHE: corresponding stream ciphers}
+  \begin{description}
+    \setlength\itemsep{0.3cm}
+  \item[Elisabeth-4] \cite{AC:CHMS22} ; $\myq = 2^4$
+    \begin{itemize}
+    \item Uses a constant key register on which index-dependent non-linear functions are applied.
+    \item Can be linearized~\cite{AC:GBJR23}
+    \end{itemize}
+    \pause
+    
+  \item[Gabriel...] \cite{INDOCRYPT:HofMeaSta23}  (Elisabeth-4 follow-ups)
+    \pause
+    
+  \item[FRAST] \cite{ToSC:CCHLOS24} ; $\myq = 2^4$
+    \begin{itemize}
+    \item A block cipher in a CTR-mode variant.
+    \item {\color{darkgreen}See you at the rump session :D}
+    \end{itemize}
+    \pause
+    
+  \item[Transistor] \cite{EPRINT:Transistor} ; $\myq = 2^4+1$
+    \begin{itemize}
+    \item SNOW-like round structure
+    \item {\color{darkgreen}See you at Anne's invited talk :D} \pause
+    \end{itemize}
+  \end{description}
+\end{frame}
 
 
 \section{Conclusion}
@@ -187,7 +337,15 @@
   \end{center}
 \end{frame}
 
+\appendix
+
+\bibliographystyle{alpha}
+\bibliography{../biblio,../abbrev2,../crypto}
+
+
 \end{document}
+
+
 
 
 % Local Variables:
