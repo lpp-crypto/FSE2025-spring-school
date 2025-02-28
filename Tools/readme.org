@@ -1,0 +1,118 @@
+#+TITLE: The Tools of the Trade: Things a Symmetric Cryptographer Should Know How To Do
+
+* Writing
+** Editor
+Pick one text editor (/maybe/ two), and learn how to use it *well*:
+- find, test, and then use the plugins that can be relevant to how you work,
+- figure out how to quickly navigate a file (jump to next section/jump to function),
+- learn the keyboard shortcuts.
+
+
+- Q :: which text editor do you use? Did you choose it? Have you looked at others?
+** LaTeX/Beamer Hacks
+*** Beamer Automated ToC Display
+Add the following code snippet before your beamer presentation to be able to display the outline of the talk, and then the outline of the relevant section in the beginning of each section. This display starts at the point at which you write =\tocStartsAppearingHere{}=.
+
+#+BEGIN_SRC latex
+\newcommand\tocStartsAppearingHere{ %
+  \begin{frame}[noframenumbering]
+    \frametitle{Outline}
+    \tableofcontents[
+    sectionstyle=show,
+    subsectionstyle=hide,
+    subsubsectionstyle=hide] 
+  \end{frame}
+
+  \AtBeginSection[] { %
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/hide/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+
+  \AtBeginSubsection[] { %
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/shaded/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+}
+
+#+END_SRC
+
+*** Use Some Color
+Syntax highlighting greatly helps with reading a program. Mathematics are not that different, and a well chosen color scheme can greatly help convey information. For example, if all the functions are blue, or if all the linear functions are in a different color from the non-linear ones, then your talk might be even clearer. The following macro helps with that:
+
+#+BEGIN_SRC latex
+\newcommand{\defcolvar}[3]{%
+  \expandafter\newcommand\csname my#1\endcsname{{\color{#3} #2 }} %
+}
+#+END_SRC
+
+To use it, add for example =\defcolvar{alpha}{\alpha}{red}= at any point of your code. From that point onwards, the macro =\myalpha= (note the =my=) will correspond to a red $\alpha$. Similarly, =\defcolvar{n}{n}{blue}= will allow you to use =\myn= to display a blue n. It simplifies the use of colors, and encourages the usage of consistent colorization throughout the code: both are good!
+* Programming
+** Structuring a Program
+** Not so Basic Python Features
+*** Object Oriented Programming
+*** Detecting Problems Early
+assert
+
+Exception
+
+*** Creating a module
+*** Adding Some C++ to It
+Basic case of functions.
+
+Classes is left as an exercise.
+** Rich
+
+* Storing and Retrieving Information
+** "Knowledge Management Systems"
+*** To keep notes
+"personal wiki" "second brain"
+*** Accumulating knowledge
+=templates= folder?
+
+file with LaTeX macros
+
+** Basic Command Line Tools
+*** grep
+Basic usage
+
+regexp
+
+some nice options: -A, -B, -n, -i
+*** text manipulation
+wc
+
+cut -d $delimiter -f $index
+
+cut -d $delimiter -f $indicesStart-indicesEnd
+*** scripting (sh/zsh)
+
+** cryptobib
+*** Getting it
+basic download from https://cryptobib.di.ens.fr/
+
+as a git submodule
+*** Application
+- Q :: What is the cryptobib bibtex key for the paper introducing the =Griffin= hash function?
+- Q :: Write a short bash script taking as input part of the title of a paper and which returns 
+
+* Working Together
+** =git= (basics)
+** Overleaf
+Exists and is used, so you should know how to use it. In particular, learn how to download a complete project, and do it on a regular basis if you use it.
+
+Also, you shouldn't rely on it too much: it can crash (and then you are stuck), it can force your co-authors to use another 
+** During a meeting

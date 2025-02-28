@@ -1,0 +1,52 @@
+#+TITLE: On the Practical Study of S-Boxes
+
+* Foreword
+This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]].
+
+/You are probably reading this content as nicely formatted markdown on github (namely, [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises][here]]), which is absolutely fine. However, it is actually an [[https://orgmode.org/][orgmode]] file that is best appreciated by opening directly the [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises/readme.org][readme.org]] in [[https://en.wikipedia.org/wiki/GNU_Emacs][emacs]]./
+
+* Basics of SAGE/Python
+** Python
+[[https://en.wikipedia.org/wiki/Python_(programming_language)][Python]] is a programming language with a simple syntax that, for our purposes, allows programmers to easily implement sophisticated programs (thus minimizing the time needed to prototype, say, an attack). Its main downside is its speed (or the lack thereof).
+
+A python script is interpreted, meaning that it is not compiled. To run a python script, just type =python /path/to/your/script.py= and watch it go! Python is a quick language to learn, so even if you are not familiar with its specific, you should be fine during this class. We will see some more advanced features (and their relevance) later. If you have never used python, you mostly need to remember that *indentation has semantic value*: the following two programs are completely different.
+
+In this first one, the =else= clause corresponds to the =if (i<2)= in  the main loop...
+#+BEGIN_SRC python :results output
+if (1 < 3):
+    for i in range(0, 5):
+        if (i < 2):
+            print(i)
+        else:
+            print("else entered")
+#+END_SRC
+
+#+RESULTS:
+: 0
+: 1
+: else entered
+: else entered
+: else entered
+
+
+... But in this second one, it is never entered since it corresponding instead to =if (1<3)=, which is always true.
+#+BEGIN_SRC python :results output
+if (1 < 3):
+    for i in range(0, 5):
+        if (i < 2):
+            print(i)
+else:
+    print("else entered")
+#+END_SRC
+
+#+RESULTS:
+: 0
+: 1
+
+** SAGE
+[[https://www.sagemath.org/][SAGE]] can be seen as a superset of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finit field arithmetic, and contains by default some basic tools to study S-boxes.
+
+** sboxU
+[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday.
+
+
