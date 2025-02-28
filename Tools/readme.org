@@ -5,11 +5,15 @@
 Pick one text editor (/maybe/ two), and learn how to use it *well*:
 - find, test, and then use the plugins that can be relevant to how you work,
 - figure out how to quickly navigate a file (jump to next section/jump to function),
-- learn the keyboard shortcuts.
+- learn the keyboard shortcuts,
+- setup a spell checker.
 
 
 - Q :: which text editor do you use? Did you choose it? Have you looked at others?
-** LaTeX/Beamer Hacks
+** Beamer Hacks
+*** TODO Beamer theme
+https://deic.uab.cat/~iblanes/beamer_gallery/
+
 *** Beamer Automated ToC Display
 Add the following code snippet before your beamer presentation to be able to display the outline of the talk, and then the outline of the relevant section in the beginning of each section. This display starts at the point at which you write =\tocStartsAppearingHere{}=.
 
@@ -60,6 +64,19 @@ Syntax highlighting greatly helps with reading a program. Mathematics are not th
 #+END_SRC
 
 To use it, add for example =\defcolvar{alpha}{\alpha}{red}= at any point of your code. From that point onwards, the macro =\myalpha= (note the =my=) will correspond to a red $\alpha$. Similarly, =\defcolvar{n}{n}{blue}= will allow you to use =\myn= to display a blue n. It simplifies the use of colors, and encourages the usage of consistent colorization throughout the code: both are good!
+*** TODO Dynamic Slides
+- =pause= ::
+
+- =onslide= ::
+
+- =only= :: 
+  
+- Q :: make a presentation with a slide containing a table where some numbers change weight (bold or not bold) as you hit "next".
+
+** Setting some lengths
+- =\setlength\itemsep{0.3cm}= ::
+- =\setlength\tabcolsep{0.3cm}= :: 
+- ={\renewcommand\arraystretch{1.1} <your table>}= ::
 * Programming
 ** Structuring a Program
 ** Not so Basic Python Features

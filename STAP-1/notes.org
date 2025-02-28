@@ -33,8 +33,19 @@ While cryptography has mostly focused on providing the algorithms able to ensure
 
 The new frontier consists in providing guarantees about an entire computation. What does it mean?
 
+- Medical Computation :: Suppose that you want a computation to be done on your private data, e.g. have an external service use your medical data to make a diagnosis. You don't want them to access your data in plain, but you also need them to perform operations on them. FHE can allow that.
+
+- Decision Verifiability :: Suppose that a public insitution wants to prove that they have allocated some resources (e.g. social benefits) in accordance with a public role, but using secret information (e.g. people's revenue). This can be seen as providing *integrity* for the computation itself. ZK-SNARK/STARK/etc.
+
+- Untrusted Computer :: Suppose that you don't trust your computing platform not to leak some important information that it processes (e.g. cryptographic keys). How can you make sure that no such platform has access to your information? MPC, for instance with masking.
 
 ** Different Protocols
+*** FHE
+**** TFHE
+**** Circuit-based FHE
+*** MPC
+**** Masking
+**** Geoffroy's stuff
 ** Arithmetization
 
 * Symmetric Techniques for Advanced Protocols

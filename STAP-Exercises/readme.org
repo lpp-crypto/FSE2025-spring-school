@@ -2,6 +2,7 @@
 
 
 * Basics of Python/SAGE
+See the notes for the exercise session of Monday !TODO!
 
 #+BEGIN_SRC python :tangle bla.py
 gf = GF(2**31-1)
