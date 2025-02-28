@@ -47,6 +47,42 @@ else:
 [[https://www.sagemath.org/][SAGE]] can be seen as a superset of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finit field arithmetic, and contains by default some basic tools to study S-boxes.
 
 ** sboxU
-[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday.
+[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
 
+
+* The Core Tools to Study S-boxes
+** TODO The list of all S-boxes
+=from sage.crypto.sboxes import sboxes=
+
+- Q :: Print the lookup table of the S-boxes of the =PRESENT= block cipher in two different. Print the length (in the Python sense) of this object. Anything strange?
+** TODO The Tables
+- DDT :: =ddt= and =differential_spectrum=
+- LAT :: =lat= and =walsh_spectrum=
+- BCT :: =bct= and =boomerang_spectrum=
+
+Some of these also work for field $F_q$ where $q = p^n$ with $p > 2$.
+
+Convenient display technique: =save_pollock=.
+
+- Q :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
+- Q :: Generate the picture representation of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
+  
+** TODO Algebraic normal form
+compute ANF
+
+- Q :: compose S-box with a basic linear layer. Regenerate ANF. Make the same thing directly on the ANF.
+
+* S-box Representations
+Integer, field element, bit-string: how they can bite you
+
+* The Only Known APN Permutation in Even Dimension
+
+The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
+
+#+BEGIN_SRC python
+dillon = [0, 54, 48, 13, 15, 18, 53, 35, 25, 63, 45, 52, 3, 20, 41, 33, 59, 36, 2, 34, 10, 8, 57, 37, 60, 19, 42, 14, 50, 26, 58, 24, 39, 27, 21, 17, 16, 29, 1, 62, 47, 40, 51, 56, 7, 43, 44, 38, 31, 11, 4, 28, 61, 46, 5, 49, 9, 6, 23, 32, 30, 12, 55, 22]
+#+END_SRC
+
+- Q :: What are the main cryptographic properties of this function?
+- Q :: Does this Walsh spectrum ring a bell?k
 
