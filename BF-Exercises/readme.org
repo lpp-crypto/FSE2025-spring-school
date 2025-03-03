@@ -44,29 +44,91 @@ else:
 : 1
 
 ** SAGE
-[[https://www.sagemath.org/][SAGE]] can be seen as a superset of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finit field arithmetic, and contains by default some basic tools to study S-boxes.
+[[https://www.sagemath.org/][SAGE]] can be seen as a super-set of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finite field arithmetic, and contains by default some basic tools to study S-boxes.
 
 ** sboxU
 [[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
 
-
 * The Core Tools to Study S-boxes
-** TODO The list of all S-boxes
-=from sage.crypto.sboxes import sboxes=
+SAGE comes bundled with some tools (in particular, the =sage.crypto.sboxes= and =sage.crypto.sbox= modules), and =sboxU= provides additional ones. Let's have a look what we can do combining these two.
 
-- Q :: Print the lookup table of the S-boxes of the =PRESENT= block cipher in two different. Print the length (in the Python sense) of this object. Anything strange?
-** TODO The Tables
-- DDT :: =ddt= and =differential_spectrum=
+** The list of all S-boxes
+SAGE contains a list of all known S-boxes, that is updated every now and then. Its focus is on S-boxes that are used in block ciphers, hash functions, etc. from the literature, but there are also S-boxes that were identified in more mathematical papers. They are in the =sage.crypto.sboxes= module, which can be used for example as follows.
+
+#+BEGIN_SRC python
+from sage.crypto.sboxes import sboxes
+#+END_SRC
+
+In this case, =sboxes= is a dictionary where the keys are algorithm names, and the entries are =sage.crypto.sbox.SBox= instances containing their lookup tables. 
+
+- Q? :: Print the lookup table of the S-boxes of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
+- Q? :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
+  
+** The Tables
+Some of the following functions also work for field $F_q$ where $q = p^n$ with $p > 2$, but we won't get into that today.
+*** Differential Properties
+The *Difference Distribution Table (DDT)* of an S-box =s= over =n= bits is a two dimensional array =d= such that, in our case:
+#+BEGIN_SRC python
+d[a][b] = len([x for x in range(0, 2**n) if s[x^a] = s[x]^b])
+#+END_SRC
+
+The *differential spectrum* counts how many pairs =(a,b)= exist such that =d[a][b] = c=, where =a!=0=. The maximum non-zero coefficient in this spectrum is the *differential uniformity* of =s=.
+
+**** Using pure SAGE
+To compute the DDT of the S-box of the PRINCE block cipher, and then its differential spectrum, we do as follows.
+
+#+BEGIN_SRC python
+from sage.crypto.sbox import SBox  # we import the SBox class
+from collections import defaultdict # a dictionary replacement
+
+lut = SBox([11, 15, 3, 2, 10, 12, 9, 1, 6, 7, 8, 0, 14, 5, 13, 4])
+d = lut.difference_distribution_table() # a SAGE Matrix object
+spectrum = defaultdict(int)
+for a in range(1, d.nrows()): # we start at 1 because 0 is pointless
+    for b in range(0, d.ncols()):
+        spectrum[d[a][b]] += 1
+print(spectrum)
+#+END_SRC
+
+- Advantages :: pure SAGE, no need to download/install =sboxU=; performances are usually good enough; can handles output sizes different from the input sizes.
+- Downsides :: rather slow, which is a problem if S-boxes get bigger; need to re-implement the differential spectrum computation; differential spectrum computation is memory inefficient.
+
+  
+- Q? :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
+- Q? :: Write a function computing the differential spectrum of an S-box without having to store the full DDT in memory.
+
+**** Using sboxU
+As a general rule, the functions in sboxU are much better optimized (lower memory and much lower time complexities, at least because they are written in C++). It relies on lower level types than SAGE, meaning that an S-box is just a =list=, and a DDT is a =list= of =list=. There is also more of them. For example, the same as above can be done using the following.
+
+
+#+BEGIN_SRC python
+from sboxU import *
+
+lut = [11, 15, 3, 2, 10, 12, 9, 1, 6, 7, 8, 0, 14, 5, 13, 4]
+d = ddt(lut)
+spectrum = differential_spectrum(lut)
+print(pretty_spectrum(spectrum))
+#+END_SRC
+
+
+- Q? :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
+
+*Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
+*** Linear Properties
+
+  
 - LAT :: =lat= and =walsh_spectrum=
 - BCT :: =bct= and =boomerang_spectrum=
 
-Some of these also work for field $F_q$ where $q = p^n$ with $p > 2$.
+*** Boomerang Properties
+
+*** Common Functions
 
 Convenient display technique: =save_pollock=.
 
-- Q :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
-- Q :: Generate the picture representation of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
-  
+- Q? :: Generate the picture representation of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
+
+
 ** TODO Algebraic normal form
 compute ANF
 
