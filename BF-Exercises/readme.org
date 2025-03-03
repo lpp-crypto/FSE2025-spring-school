@@ -166,6 +166,9 @@ sboxU provides the =scal_prod= function, which we will discuss later.
 
 - Q? :: Consider the same 16x16 S-box as above. What is its linearity?
 
+It is also possible to *invert* a LAT, i.e., given an LAT, to return the corresponding function. This can be done with the =invert_lat= function.
+
+- Q? :: Looking at the S-box of =PRINCE=, compute its lat, print it, and then call =invert_lat= in it. Did it work? Now, swap to rows of the lat, and =invert_lat= again. What do you get?
 
 *** 3.2.c) Boomerang Properties
 The *Boomerang Connectivity Table (BCT)* is also present in both SAGE and sboxU (=SBox.boomerang_connectivity_table()= for SAGE, =bct= for sboxU), and the spectrum is only in sboxU (=boomerang_spectrum(lut)=).
