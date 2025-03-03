@@ -1,12 +1,12 @@
 #+TITLE: On the Practical Study of S-Boxes
 
-* Foreword
+* 1) Foreword
 This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]].
 
 /You are probably reading this content as nicely formatted markdown on github (namely, [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises][here]]), which is absolutely fine. However, it is actually an [[https://orgmode.org/][orgmode]] file that is best appreciated by opening directly the [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises/readme.org][readme.org]] in [[https://en.wikipedia.org/wiki/GNU_Emacs][emacs]]./
 
-* Basics of SAGE/Python
-** Python
+* 2) Basics of SAGE/Python
+** 2.1) Python
 [[https://en.wikipedia.org/wiki/Python_(programming_language)][Python]] is a programming language with a simple syntax that, for our purposes, allows programmers to easily implement sophisticated programs (thus minimizing the time needed to prototype, say, an attack). Its main downside is its speed (or the lack thereof).
 
 A python script is interpreted, meaning that it is not compiled. To run a python script, just type =python /path/to/your/script.py= and watch it go! Python is a quick language to learn, so even if you are not familiar with its specific, you should be fine during this class. We will see some more advanced features (and their relevance) later. If you have never used python, you mostly need to remember that *indentation has semantic value*: the following two programs are completely different.
@@ -43,16 +43,16 @@ else:
 : 0
 : 1
 
-** SAGE
+** 2.2) SAGE
 [[https://www.sagemath.org/][SAGE]] can be seen as a super-set of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finite field arithmetic, and contains by default some basic tools to study S-boxes.
 
-** sboxU
+** 2.3) sboxU
 [[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
 
-* The Core Tools to Study S-boxes
+* 3) The Core Tools to Study S-boxes
 SAGE comes bundled with some tools (in particular, the =sage.crypto.sboxes= and =sage.crypto.sbox= modules), and =sboxU= provides additional ones. Let's have a look what we can do combining these two.
 
-** The list of all S-boxes
+** 3.1) The list of all S-boxes
 SAGE contains a list of all known S-boxes, that is updated every now and then. Its focus is on S-boxes that are used in block ciphers, hash functions, etc. from the literature, but there are also S-boxes that were identified in more mathematical papers. They are in the =sage.crypto.sboxes= module, which can be used for example as follows.
 
 #+BEGIN_SRC python
@@ -64,9 +64,9 @@ In this case, =sboxes= is a dictionary where the keys are algorithm names, and t
 - Q? :: Print the lookup table of the S-boxes of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
 - Q? :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
   
-** The Tables
+** 3.2) The Tables
 Some of the following functions also work for field $F_q$ where $q = p^n$ with $p > 2$, but we won't get into that today.
-*** Differential Properties
+*** 3.2.a) Differential Properties
 The *Difference Distribution Table (DDT)* of an S-box =s= over =n= bits is a two dimensional array =d= such that, in our case:
 #+BEGIN_SRC python
 d[a][b] = len([x for x in range(0, 2**n) if s[x^a] = s[x]^b])
@@ -74,7 +74,7 @@ d[a][b] = len([x for x in range(0, 2**n) if s[x^a] = s[x]^b])
 
 The *differential spectrum* counts how many pairs =(a,b)= exist such that =d[a][b] = c=, where =a!=0=. The maximum non-zero coefficient in this spectrum is the *differential uniformity* of =s=.
 
-**** Using pure SAGE
+**** 3.2.a.i) Using pure SAGE
 To compute the DDT of the S-box of the PRINCE block cipher, and then its differential spectrum, we do as follows.
 
 #+BEGIN_SRC python
@@ -97,7 +97,7 @@ print(spectrum)
 - Q? :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
 - Q? :: Write a function computing the differential spectrum of an S-box without having to store the full DDT in memory.
 
-**** Using sboxU
+**** 3.2.a.ii) Using sboxU
 As a general rule, the functions in sboxU are much better optimized (lower memory and much lower time complexities, at least because they are written in C++). It relies on lower level types than SAGE, meaning that an S-box is just a =list=, and a DDT is a =list= of =list=. There is also more of them. For example, the same as above can be done using the following.
 
 
@@ -114,30 +114,30 @@ print(pretty_spectrum(spectrum))
 - Q? :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
 
 *Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
-*** Linear Properties
+*** 3.2.b) Linear Properties
 
   
 - LAT :: =lat= and =walsh_spectrum=
 - BCT :: =bct= and =boomerang_spectrum=
 
-*** Boomerang Properties
+*** 3.2.c) Boomerang Properties
 
-*** Common Functions
+*** 3.2.d) Common Functions
 
 Convenient display technique: =save_pollock=.
 
 - Q? :: Generate the picture representation of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
 
 
-** TODO Algebraic normal form
+** TODO 3.3) Algebraic normal form
 compute ANF
 
 - Q :: compose S-box with a basic linear layer. Regenerate ANF. Make the same thing directly on the ANF.
 
-* S-box Representations
+* 4) S-box Representations
 Integer, field element, bit-string: how they can bite you
 
-* The Only Known APN Permutation in Even Dimension
+* 5) The Only Known APN Permutation in Even Dimension
 
 The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
 
