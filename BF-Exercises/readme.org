@@ -116,20 +116,79 @@ print(pretty_spectrum(spectrum))
 *Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
 *** 3.2.b) Linear Properties
 
+The *Linear Approximation Table (LAT)* of an S-box =s= over =n= bits is a two dimensional array =l= such that, in our case:
+#+BEGIN_SRC python
+l[a][b] = sum((-1)**(scalar_prod(a, x) + scalar_prod(b, S[x]) for x in range(0, 2**n))
+#+END_SRC
+
+where =scalar_prod= implements a scalar product over $F_2^n$, such as $<a,x> = \sum_i a_i x_i \mod 2$.
+
+The *Walsh spectrum* counts how many pairs =(a,b)= exist such that =l[a][b] = c=, where =a!=0=. The =extended Walsh spectrum= is the same, except that we look at the absolute values. The maximum non-zero coefficient in the latter is the *linearity* of =s=.
+
+**** 3.2.a.i) Using pure SAGE
+To compute the LAT of the S-box of the PRINCE block cipher, and then its extended Walsh spectrum, we do as follows.
+
+#+BEGIN_SRC python
+from sage.crypto.sbox import SBox  # we import the SBox class
+from collections import defaultdict # a dictionary replacement
+
+lut = SBox([11, 15, 3, 2, 10, 12, 9, 1, 6, 7, 8, 0, 14, 5, 13, 4])
+d = lut.linear_approximation_table() # a SAGE Matrix object
+spectrum = defaultdict(int)
+for a in range(1, d.nrows()): # we start at 1 because 0 is pointless
+    for b in range(0, d.ncols()):
+        spectrum[abs(d[a][b])] += 1
+print(spectrum)
+#+END_SRC
+
+Advantages and inconvenients are the same as for the differential case.
+- Advantages :: pure SAGE, no need to download/install =sboxU=; performances are usually good enough; can handles output sizes different from the input sizes.
+- Downsides :: rather slow, which is a problem if S-boxes get bigger; need to re-implement the Walsh spectrum computation; walsh spectrum computation is memory inefficient.
+
   
-- LAT :: =lat= and =walsh_spectrum=
-- BCT :: =bct= and =boomerang_spectrum=
+- Q? :: Compute the extended Walsh spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why? (hint: the why is exactly the same as before!)
+
+**** 3.2.a.ii) Using sboxU
+As before, sboxU can do the same, but quicker.
+
+#+BEGIN_SRC python
+from sboxU import *
+
+lut = [11, 15, 3, 2, 10, 12, 9, 1, 6, 7, 8, 0, 14, 5, 13, 4]
+d = lat(lut)
+spectrum = walsh_spectrum(lut)
+print(pretty_spectrum(spectrum, absolute=True))
+#+END_SRC
+
+Note the =absolute=True= parameter given to the =pretty_spectrum= function: it ensures that we print the extended Walsh spectrum, not the Walsh spectrum itself.
+
+sboxU provides the =scal_prod= function, which we will discuss later.
+
+- Q? :: Consider the same 16x16 S-box as above. What is its linearity?
+
 
 *** 3.2.c) Boomerang Properties
+The *Boomerang Connectivity Table (BCT)* is also present in both SAGE and sboxU (=SBox.boomerang_connectivity_table()= for SAGE, =bct= for sboxU), and the spectrum is only in sboxU (=boomerang_spectrum(lut)=).
+*** 3.2.d) Jackson Pollock Representation
+(Yes, that's a thing; yes, it's my fault)
 
-*** 3.2.d) Common Functions
+For S-boxes operating on more than 5 bits, it can be more convenient to make a graph representing the coefficients rather than just displaying their values in a terminal. This can be surprisingly powerful: most S-box structures used to build S-boxes "in real life" can be spotted directly on such representations of the DDT, LAT or BCT.
 
-Convenient display technique: =save_pollock=.
+To simplify such things, sboxU provides the =save_pollock= function, which is used as follows, where =t= is a list of list (typically, the output of =ddt= or =lat=). By default, it applies the =abs= function to all the elements.
 
-- Q? :: Generate the picture representation of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
+#+BEGIN_SRC python
+save_pollock(t,
+             name="where_to_save", # mandatory parameter, specifies the path the png file you want to generate
+             vmin=0, # values under this threshold are shown as equal to this threshold
+             vmax=0, # values above this threshold are shown as equal to this threshold
+             color_scheme="coolwarm" # a string description of the color scheme to use.
+             )
+#+END_SRC
+
+- Q? :: Generate the picture representation of the LAT of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
 
 
-** TODO 3.3) Algebraic normal form
+** 3.3) Algebraic normal form
 compute ANF
 
 - Q :: compose S-box with a basic linear layer. Regenerate ANF. Make the same thing directly on the ANF.
