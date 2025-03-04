@@ -81,6 +81,23 @@ In the following macros, =0.3cm= and =1.1= can be changed to whatever you like.
 - =\setlength\tabcolsep{0.3cm}= :: Sets the horizontal space between columns. A high value means they will be far apart. Put it inside the =table= environment (but outside the =tabular= one) to limit its scope.
 - ={\renewcommand\arraystretch{1.1} <your table>}= :: This multiplies the vertical size of a table by the given amount; very useful to increase the height of its rows. 
 * Programming
+** Basic Command Line Tools
+*** top and htop
+*** grep
+Basic usage
+
+regexp
+
+some nice options: -A, -B, -n, -i
+*** TODO SSH
+*** text manipulation
+wc
+
+cut -d $delimiter -f $index
+
+cut -d $delimiter -f $indicesStart-indicesEnd
+*** scripting (sh/zsh)
+
 ** TODO Structuring a Program
 Tree structure: in the directory/subdirectories logic, also within a file (that's what you do when you write a paper).
 
@@ -182,7 +199,12 @@ Basic case of functions.
 Classes is left as an exercise.
 ** Some helpful links
 - =Rich= is a python module that can easily make your terminal output much prettier---and thus much easier to parse. [[https://rich.readthedocs.io/en/stable/introduction.html][Link]].
-
+* Important Algorithms
+** Collision finding
+- Generate then sort
+- Pollard rho
+** Ressources
+- https://wikimpri.dptinfo.ens-cachan.fr/doku.php?id=cours:c-2-22
 * Storing and Retrieving Information
 ** "Knowledge Management Systems"
 *** To keep notes
@@ -192,20 +214,6 @@ Classes is left as an exercise.
 
 file with LaTeX macros
 
-** Basic Command Line Tools
-*** grep
-Basic usage
-
-regexp
-
-some nice options: -A, -B, -n, -i
-*** text manipulation
-wc
-
-cut -d $delimiter -f $index
-
-cut -d $delimiter -f $indicesStart-indicesEnd
-*** scripting (sh/zsh)
 
 ** cryptobib
 *** Getting it

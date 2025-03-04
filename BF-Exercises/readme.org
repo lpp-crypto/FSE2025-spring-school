@@ -61,7 +61,7 @@ from sage.crypto.sboxes import sboxes
 
 In this case, =sboxes= is a dictionary where the keys are algorithm names, and the entries are =sage.crypto.sbox.SBox= instances containing their lookup tables. 
 
-- Q? :: Print the lookup table of the S-boxes of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
+- Q? :: Print the lookup table of the S-box of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
 - Q? :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
   
 ** 3.2) The Tables
@@ -168,7 +168,7 @@ sboxU provides the =scal_prod= function, which we will discuss later.
 
 It is also possible to *invert* a LAT, i.e., given an LAT, to return the corresponding function. This can be done with the =invert_lat= function.
 
-- Q? :: Looking at the S-box of =PRINCE=, compute its lat, print it, and then call =invert_lat= in it. Did it work? Now, swap to rows of the lat, and =invert_lat= again. What do you get?
+- Q? :: Looking at the S-box of =PRINCE=, compute its LAT, print it, and then call =invert_lat= on it. Did it work? Now, swap some rows of the lat, and call =invert_lat= again. What do you get?
 
 *** 3.2.c) Boomerang Properties
 The *Boomerang Connectivity Table (BCT)* is also present in both SAGE and sboxU (=SBox.boomerang_connectivity_table()= for SAGE, =bct= for sboxU), and the spectrum is only in sboxU (=boomerang_spectrum(lut)=).
@@ -192,9 +192,14 @@ save_pollock(t,
 
 
 ** 3.3) Algebraic normal form
-compute ANF
+SAGE provides another useful class called  =BooleanFunction=, that is =sage.crypto.boolean_function=. A =BooleanFunction= must be initialized with a lookup table, and objects of this class have the =algebraic_normal_form()= method that returns... the Algebraic Normal Form (ANF). sboxU contains a convenient wrapper, =algebraic_normal_form(lut)=, that evaluates the ANF of each coordinate in parallel.
 
-- Q :: compose S-box with a basic linear layer. Regenerate ANF. Make the same thing directly on the ANF.
+- Q? :: How many coordinates of the 4-bit S-box of =SKINNY= (key ="SKINNY_4"= in the =sboxes= dictionnary of =sage.crypto.sboxes=) are quadratic?
+- Q? :: How many terms of each degree are in the ANF of each coordinate? The monomials in the ANF of a boolean function can be iterated over using a simple loop: =for term in some_anf ...= ; then each of these monomials has a =degree= method.
+
+We can then use this software stack to experimentally test the evolution of the algebraic degree of an SPN with a specific S-box. Consider S-box or =PRESENT=, along with the same linear linear as before, namely =L= which maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. Finally, consider the operation =K(x, i)= that XOR =2**i= into a 16-bit vector =x=.
+
+- Q? :: What is the algebraic degree of each coordinate of =r_0 = K_0 o L o S=? of =r_1 o r_0=? How many rounds to you need to reach  a full degree on all the coordinates? You can go further and compare this with your results from the previous exercise sessions.
 
 * 4) S-box Representations
 Integer, field element, bit-string: how they can bite you
