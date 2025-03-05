@@ -348,13 +348,13 @@ print( P(a**2) )
 
 As you can see, a polynomial can be evaluated directly as if it where a regular python function. Its output is then itself a finite element, that you can cast back to an integer.
 
-- Q? (14) :: What is the differential uniformity of the monomial $x \mapsto x^{14}$ in the field $F_{2^n}$ for $n \in \{4, ..., 10\}$? What about the polynomial $x \mapsto x^{28}^{} + x^4 + x$? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
+- Q? (14) :: What is the differential uniformity of the monomial $x \rightarrow x^{14}$ in the field $F_{2^n}$ for $n \in \{4, ..., 10\}$? What about the polynomial $x \rightarrow x^{28}^{} + x^4 + x$? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
 
   What are the algebraic degrees of these functions? Again, use both a script and pencil/paper.
 ** 4.2) Finite field elements representations
 How do the =integer_representation()= (or =to_integer()=) and =fetch_int(x)= (or =from_integer(x)=) work?
 
-In order to work with *the* finite field of size $2^n$, we need to choose *a specific* finite field, defined by its modulus $P$ (an irreducible polynomial of $F_2$ of degree $n$). A finite field is then the field of univariate polynomials with coefficients in $F_2$ reduced modulo $P$. If we let $\alpha_P$ be a root of $P$, we can then write all the elements of $F_{2^n} = F_2[X] \backslash P(X)$ as $\sum_{i=0}^{n-1}x_i \alpha_P^i$. We then have the following mapping between bit-vectors and finite field elements: $\lambda_P : (x_0, ..., x_{n-1}) \mapsto \sum_{i=0}^n x_i \alpha_P^i .$ 
+In order to work with *the* finite field of size $2^n$, we need to choose *a specific* finite field, defined by its modulus $P$ (an irreducible polynomial of $F_2$ of degree $n$). A finite field is then the field of univariate polynomials with coefficients in $F_2$ reduced modulo $P$. If we let $\alpha_P$ be a root of $P$, we can then write all the elements of $F_{2^n} = F_2[X] \backslash P(X)$ as $\sum_{i=0}^{n-1}x_i \alpha_P^i$. We then have the following mapping between bit-vectors and finite field elements: $\lambda_P : (x_0, ..., x_{n-1}) \rightarrow \sum_{i=0}^n x_i \alpha_P^i .$ 
 
 */!\ This mapping depends on $P$!* It is not as trivial a function as it seems, and you should always remember that you are using such a mapping when dealing with finite fields, especially if you start reasoning about the Walsh spectrum: the scalar product it implicitly relies on can have strange interaction with $\lambda_P$.
 
