@@ -197,12 +197,57 @@ SAGE provides another useful class called  =BooleanFunction=, that is =sage.cryp
 - Q? :: How many coordinates of the 4-bit S-box of =SKINNY= (key ="SKINNY_4"= in the =sboxes= dictionnary of =sage.crypto.sboxes=) are quadratic?
 - Q? :: How many terms of each degree are in the ANF of each coordinate? The monomials in the ANF of a boolean function can be iterated over using a simple loop: =for term in some_anf ...= ; then each of these monomials has a =degree= method.
 
-We can then use this software stack to experimentally test the evolution of the algebraic degree of an SPN with a specific S-box. Consider S-box or =PRESENT=, along with the same linear linear as before, namely =L= which maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. Finally, consider the operation =K(x, i)= that XOR =2**i= into a 16-bit vector =x=.
+We can then use this software stack to experimentally test the evolution of the algebraic degree of a specific structure. Consider the following function =phi=, intended to operate on 15-bit entries.
 
-- Q? :: What is the algebraic degree of each coordinate of =r_0 = K_0 o L o S=? of =r_1 o r_0=? How many rounds to you need to reach  a full degree on all the coordinates? You can go further and compare this with your results from the previous exercise sessions.
+#+BEGIN_SRC python
+def xor(x, y):
+    """This is to bypass SAGE's potential jokes about the XOR."""
+    return Integer(x).__xor__(Integer(y))
 
+def neg(x):
+    """Bitwise negation for 5-bit vectors."""
+    return xor(x, 0x1F)
+
+# mysterious lookups
+A = [16, 0, 11, 27, 18, 2, 9, 25, 17, 1, 10, 26, 19, 3, 8, 24, 15, 31, 20, 4, 13, 29, 22, 6, 14, 30, 21, 5, 12, 28, 23, 7]
+B = [7, 18, 11, 30, 8, 29, 4, 17, 10, 31, 6, 19, 5, 16, 9, 28, 26, 15, 22, 3, 21, 0, 25, 12, 23, 2, 27, 14, 24, 13, 20, 1]
+C = [28, 8, 7, 19, 30, 10, 5, 17, 27, 15, 0, 20, 25, 13, 2, 22, 4, 16, 31, 11, 6, 18, 29, 9, 3, 23, 24, 12, 1, 21, 26, 14]
+
+def phi(x):
+    """A mysterious function operating on 15-bit vectors using the
+    mysterious lookups.
+
+    """
+    assert x < 2**15
+    y = [x & 0x1F,
+         (x >> 5) & 0x1F,
+         (x >> 10) & 0x1F ]
+    y = [xor(y[0], neg(y[1]) & y[2]),
+         xor(y[1], neg(y[2]) & y[0]),
+         xor(y[2], neg(y[0]) & y[1]) ]
+    y = [A[y[0]],
+         B[y[1]],
+         C[y[2]] ]
+    return sum(y[i] << (5*i) for i in range(0, 3))
+
+#+END_SRC
+
+- Q? :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Why do you think that is?
 * 4) S-box Representations
-Integer, field element, bit-string: how they can bite you
+As you have seen in the functions above, =phi= and =neg= are intended to operate on bit-vectors but they take integers as input. It makes sense: computers are very good with integers. Also, there is a clear mapping between bit-vectors and integers:
+$$(x_0, ..., x_{n-1}) \leftrightarrow \sum_{i=0}^n x_i 2^i .$$
+
+Things get trickier when we deal with finite fields.
+
+** Dealing with finite fields in SAGE
+*** Opening Warning
+*/!\* The way finite fields are implemented in SAGE is very convenient, but it definitely has its quirks. In particular, its subtleties can be very version dependent. The presentation I give below is valid for slightly older versions of SAGE, but will still work with the latest ones---at least for a bit.
+
+*** Basic Functions
+A finite field can be easily declared as follows
+#+BEGIN_SRC python
+
+#+END_SRC
 
 * 5) The Only Known APN Permutation in Even Dimension
 
