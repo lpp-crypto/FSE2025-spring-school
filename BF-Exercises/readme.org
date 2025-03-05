@@ -1,7 +1,9 @@
-#+TITLE: On the Practical Study of S-Boxes
+#+TITLE: On the Practical Study of S-Boxes: a Tutorial
 
 * 1) Foreword
 This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]].
+
+Exercise questions are marked with the symbol =Q?=. If they contain the keyword *advanced*, then it is safe to skip them.
 
 /You are probably reading this content as nicely formatted markdown on github (namely, [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises][here]]), which is absolutely fine. However, it is actually an [[https://orgmode.org/][orgmode]] file that is best appreciated by opening directly the [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises/readme.org][readme.org]] in [[https://en.wikipedia.org/wiki/GNU_Emacs][emacs]]./
 
@@ -43,13 +45,16 @@ else:
 : 0
 : 1
 
+More details can be found for instance [[https://docs.python.org/3/tutorial/controlflow.html][on the python.org website]].
 ** 2.2) SAGE
 [[https://www.sagemath.org/][SAGE]] can be seen as a super-set of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finite field arithmetic, and contains by default some basic tools to study S-boxes.
 
+To install it, head over [[https://doc.sagemath.org/html/en/installation/index.html][here]] (though it might not work /during/ the exercise session).
 ** 2.3) sboxU
-[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
+[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed it. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
 
-* 3) The Core Tools to Study S-boxes
+** TODO 2.4) Notebooks and scripts
+* 3) The core tools to study S-boxes
 SAGE comes bundled with some tools (in particular, the =sage.crypto.sboxes= and =sage.crypto.sbox= modules), and =sboxU= provides additional ones. Let's have a look what we can do combining these two.
 
 ** 3.1) The list of all S-boxes
@@ -64,9 +69,9 @@ In this case, =sboxes= is a dictionary where the keys are algorithm names, and t
 - Q? :: Print the lookup table of the S-box of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
 - Q? :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
   
-** 3.2) The Tables
+** 3.2) The tables
 Some of the following functions also work for field $F_q$ where $q = p^n$ with $p > 2$, but we won't get into that today.
-*** 3.2.a) Differential Properties
+*** 3.2.a) Differential properties
 The *Difference Distribution Table (DDT)* of an S-box =s= over =n= bits is a two dimensional array =d= such that, in our case:
 #+BEGIN_SRC python
 d[a][b] = len([x for x in range(0, 2**n) if s[x^a] = s[x]^b])
@@ -114,7 +119,7 @@ print(pretty_spectrum(spectrum))
 - Q? :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
 
 *Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
-*** 3.2.b) Linear Properties
+*** 3.2.b) Linear properties
 
 The *Linear Approximation Table (LAT)* of an S-box =s= over =n= bits is a two dimensional array =l= such that, in our case:
 #+BEGIN_SRC python
@@ -170,28 +175,9 @@ It is also possible to *invert* a LAT, i.e., given an LAT, to return the corresp
 
 - Q? :: Looking at the S-box of =PRINCE=, compute its LAT, print it, and then call =invert_lat= on it. Did it work? Now, swap some rows of the lat, and call =invert_lat= again. What do you get?
 
-*** 3.2.c) Boomerang Properties
+*** 3.2.c) Boomerang properties
 The *Boomerang Connectivity Table (BCT)* is also present in both SAGE and sboxU (=SBox.boomerang_connectivity_table()= for SAGE, =bct= for sboxU), and the spectrum is only in sboxU (=boomerang_spectrum(lut)=).
-*** 3.2.d) Jackson Pollock Representation
-(Yes, that's a thing; yes, it's my fault)
-
-For S-boxes operating on more than 5 bits, it can be more convenient to make a graph representing the coefficients rather than just displaying their values in a terminal. This can be surprisingly powerful: most S-box structures used to build S-boxes "in real life" can be spotted directly on such representations of the DDT, LAT or BCT.
-
-To simplify such things, sboxU provides the =save_pollock= function, which is used as follows, where =t= is a list of list (typically, the output of =ddt= or =lat=). By default, it applies the =abs= function to all the elements.
-
-#+BEGIN_SRC python
-save_pollock(t,
-             name="where_to_save", # mandatory parameter, specifies the path the png file you want to generate
-             vmin=0, # values under this threshold are shown as equal to this threshold
-             vmax=0, # values above this threshold are shown as equal to this threshold
-             color_scheme="coolwarm" # a string description of the color scheme to use.
-             )
-#+END_SRC
-
-- Q? :: Generate the picture representation of the LAT of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
-
-
-** 3.3) Algebraic normal form
+*** 3.3 Algebraic normal form
 SAGE provides another useful class called  =BooleanFunction=, that is =sage.crypto.boolean_function=. A =BooleanFunction= must be initialized with a lookup table, and objects of this class have the =algebraic_normal_form()= method that returns... the Algebraic Normal Form (ANF). sboxU contains a convenient wrapper, =algebraic_normal_form(lut)=, that evaluates the ANF of each coordinate in parallel.
 
 - Q? :: How many coordinates of the 4-bit S-box of =SKINNY= (key ="SKINNY_4"= in the =sboxes= dictionnary of =sage.crypto.sboxes=) are quadratic?
@@ -233,23 +219,153 @@ def phi(x):
 #+END_SRC
 
 - Q? :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Why do you think that is?
-* 4) S-box Representations
-As you have seen in the functions above, =phi= and =neg= are intended to operate on bit-vectors but they take integers as input. It makes sense: computers are very good with integers. Also, there is a clear mapping between bit-vectors and integers:
-$$(x_0, ..., x_{n-1}) \leftrightarrow \sum_{i=0}^n x_i 2^i .$$
+*** 3.2.d) Jackson Pollock representation
+(Yes, that's a thing; yes, it's my fault)
 
-Things get trickier when we deal with finite fields.
+For S-boxes operating on more than 5 bits, it can be more convenient to make a graph representing the coefficients rather than just displaying their values in a terminal. This can be surprisingly powerful: most S-box structures used to build S-boxes "in real life" can be spotted directly on such representations of the DDT, LAT or BCT.
 
-** Dealing with finite fields in SAGE
-*** Opening Warning
-*/!\* The way finite fields are implemented in SAGE is very convenient, but it definitely has its quirks. In particular, its subtleties can be very version dependent. The presentation I give below is valid for slightly older versions of SAGE, but will still work with the latest ones---at least for a bit.
+To simplify such things, sboxU provides the =save_pollock= function, which is used as follows, where =t= is a list of list (typically, the output of =ddt= or =lat=). By default, it applies the =abs= function to all the elements.
 
-*** Basic Functions
-A finite field can be easily declared as follows
 #+BEGIN_SRC python
-
+save_pollock(t,
+             name="where_to_save", # mandatory parameter, specifies the path the png file you want to generate
+             vmin=0, # values under this threshold are shown as equal to this threshold
+             vmax=0, # values above this threshold are shown as equal to this threshold
+             color_scheme="coolwarm" # a string description of the color scheme to use.
+             )
 #+END_SRC
 
-* 5) The Only Known APN Permutation in Even Dimension
+If you don't have sboxU, its source code is in [[./py/save_pollock.py]]
+
+- Q? :: Generate the picture representation of the LAT of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
+
+
+* 4) S-box representations
+** As integers 
+As you have seen in the functions above, =phi= and =neg= are intended to operate on bit-vectors but they take integers as input. It makes sense: computers are very good with integers. Also, there is a clear mapping between bit-vectors and integers:
+$(x_0, ..., x_{n-1}) \leftrightarrow \sum_{i=0}^n x_i 2^i .$
+
+Since $F_2^n$ is a vector space, we can define matrices that operate on it. This can be done for example as follows.
+
+#+BEGIN_SRC python
+M = Matrix(GF(2), 3, 5, [
+    [1, 1, 1, 1, 1],
+    [0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 1]
+])
+#+END_SRC
+
+In order then to be able to multiply an "integer" (actually, the bit-vector corresponding to this integer) by a matrix, we can then use the following functions. If you have sboxU, they are already provided---with these exact names.
+
+#+BEGIN_SRC python
+def tobin(x, n):
+    return [(x >> i) & 1 for i in reversed(range(0, n))]
+
+def frombin(v):
+    y = 0
+    for i in range(0, len(v)):
+        y = (y << 1) | int(v[i])
+    return y
+
+def apply_bin_mat(x, mat):
+    n = mat.ncols()
+    x = vector(tobin(x, n))
+    y = mat * x
+    return frombin(y)
+#+END_SRC
+
+In these functions, integers are interpreted as vertical vector of $F_2$ where the bit of lowest weight is at the bottom. Check for example the following.
+
+#+BEGIN_SRC python
+print( apply_bin_mat(1, M) )
+print( apply_bin_mat(2, M) )
+print( apply_bin_mat(4, M) )
+#+END_SRC
+
+- Q? :: Compute the lookup table of the 4-bit permutation $(x_0, ..., x_3) \mapso (x_0, x_0+x_1, x_3, x_3)$ using bit fiddling (i.e., masks and shifts), and using a matrix multiplication.
+** 4.1) Dealing with finite fields in SAGE
+*** 4.1.a) Opening warning
+*/!\* The way finite fields are implemented in SAGE is very convenient, but it definitely has its quirks. In particular, its subtleties can be very version dependent. The presentation I give below is valid for slightly older versions of SAGE, but will still work with the latest ones---at least for a bit. 
+
+*** 4.1.b) Basic functions
+A finite field can be easily declared, for instance a field of size 16:
+#+BEGIN_SRC python
+f = GF(2**4)
+#+END_SRC
+
+We can then do a bunch of operations using the methods of the =GF= class, in particular =.gen()=, which returns a multiplicative generator.
+
+#+BEGIN_SRC python
+a = f.gen()
+print( a.multiplicative_order() )
+print( a.order() )  # the additive order
+print( a == a**16 ) # multiplication is indeed the finite field multiplication
+print( a + a )      # addition is indeed the finite field addition
+print( len(f) )     # no joke this time (unlike in SBox)
+print( f.degree() ) # the extension degree
+#+END_SRC
+
+Two very important functions are the method =.fetch_int(x)= of the =GF= class, x being an integer, and the =.integer_representation()= method of the finite field element class.
+
+*/!\* Newer versions of SAGE will complain if you use these methods as they are being deprecated. In the future, you should use =.from_integer(x)= and =.to_integer()= instead, respectively (which is admittedly better looking). If it complains, *do replace the function calls in what follows!* Weird stuff will happen if you don't: SAGE will not just complain, it will break in some parts.
+
+#+BEGIN_SRC python
+a = f.gen()
+print( a.integer_representation() )
+print( f.fetch_int(3) )
+for x in range(0, len(f)):
+    print( x, (f.fetch_int(x).integer_representation()) )
+#+END_SRC
+
+*** 4.1.c) Polynomials
+SAGE can also deal with polynomials. More advanced manipulations for multivariate polynomials will be discussed on Friday (see also [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises][here]]).
+
+You first need to declare a finite field element, and then its polynomial ring. There are several ways to do this; I like the following one.
+
+#+BEGIN_SRC python
+f = GF(2**4)
+a = f.gen()
+poly_ring = f.polynomial_ring("X") # you don't *need* the "X", but it
+                                   # makes for a prettier string
+                                   # representation of the polynomials
+X = poly_ring.gen()
+print( X )
+print( X**2)
+print( X + f.gen() )
+P = X**2 + a
+print(P)
+print( P(1) )
+print( P(a) )
+print( P(a**2) )
+#+END_SRC
+
+As you can see, a polynomial can be evaluated directly as if it where a regular python function. Its output is then itself a finite element, that you can cast back to an integer.
+
+- Q? :: What is the differential uniformity of the monomial $x \mapsto x^{14}$ in the field $F_{2^n}$ for $n \in \{4, ..., 10\}$? What about the polynomial $x \mapsto x^{28}^{} + x^4 + x$? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
+
+  What are the algebraic degrees of these functions? Again, use both a script and pencil/paper.
+** 4.2) Finite field elements representations
+How do the =integer_representation()= (or =to_integer()=) and =fetch_int(x)= (or =from_integer(x)=) work?
+
+In order to work with *the* finite field of size $2^n$, we need to choose *a specific* finite field, defined by its modulus $P$ (an irreducible polynomial of $F_2$ of degree $n$). A finite field is then the field of univariate polynomials with coefficients in $F_2$ reduced modulo $P$. If we let $\alpha_P$ be a root of $P$, we can then write all the elements of $F_{2^n} = F_2[X] \backslash P(X)$ as $\sum_{i=0}^{n-1}x_i \alpha_P^i$. We then have the following mapping between bit-vectors and finite field elements: $\lambda_P : (x_0, ..., x_{n-1}) \mapsto \sum_{i=0}^n x_i \alpha_P^i .$ 
+
+*/!\ This mapping depends on $P$!* It is not as trivial a function as it seems, and you should always remember that you are using such a mapping when dealing with finite fields, especially if you start reasoning about the Walsh spectrum: the scalar product it implicitly relies on can have strange interaction with $\lambda_P$.
+
+
+By default, SAGE picks an appropriate polynomial, but you can also choose it yourself as follows.
+
+#+BEGIN_SRC python
+X = GF(2).polynomial_ring().gen() # so we can have polynomials of F_2[X]
+f = GF(2**4)
+g = GF(2**4, modulus=X**4+X**3+1, name="b")
+print( f.modulus() )
+print( g.modulus() )
+#+END_SRC
+
+Note the optional argument "name": it is basically the string representation of $\alpha_P$, which is then used when displaying field elements. If you specify the modulus by hand, then you have to specify this name by hand also, otherwise SAGE will yell at you.
+
+- Q? :: rebuild the AES S-box by hand, see for example [[https://en.wikipedia.org/wiki/Rijndael_S-box][wikipedia]] for its definition.
+* 7) The only known APN permutation in even dimension
 
 The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
 
@@ -257,6 +373,24 @@ The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
 dillon = [0, 54, 48, 13, 15, 18, 53, 35, 25, 63, 45, 52, 3, 20, 41, 33, 59, 36, 2, 34, 10, 8, 57, 37, 60, 19, 42, 14, 50, 26, 58, 24, 39, 27, 21, 17, 16, 29, 1, 62, 47, 40, 51, 56, 7, 43, 44, 38, 31, 11, 4, 28, 61, 46, 5, 49, 9, 6, 23, 32, 30, 12, 55, 22]
 #+END_SRC
 
-- Q :: What are the main cryptographic properties of this function?
-- Q :: Does this Walsh spectrum ring a bell?k
+** Recover an equivalent permutation
+- Q? :: What are the main cryptographic properties of this function? Does this Walsh spectrum ring a bell? What about its differential uniformity?
+- Q? :: Generate the Jackson Pollock representation of its LAT. Check the distribution of the coefficients in each column of the LAT. Which column indices do not contain an 8 (or -8)? What structure does this set have?
+- Q? (advanced) :: Build a linear permutation such that applying to the column indices will put all the "strange" ones to the left. How can you use this linear permutation andthe =dillon= lookup table to build another S-box that has this even more structured LAT?
 
+** Decomposing the new permutation
+At this stage, you have obtained something like this permutation.
+#+BEGIN_SRC python
+new_dillon = [0, 31, 9, 38, 52, 19, 45, 58, 35, 61, 46, 13, 50, 5, 42, 40, 57, 12, 18, 26, 16, 2, 43, 44, 15, 51, 24, 20, 27, 17, 25, 3, 62, 49, 37, 33, 1, 39, 32, 29, 60, 10, 59, 11, 54, 56, 14, 30, 53, 48, 4, 7, 47, 28, 36, 41, 34, 22, 55, 8, 21, 6, 63, 23]
+#+END_SRC
+
+- Q? :: What pattern can you spot in the restriction of this function to all the sets of the form $S_c = \{(x || c), x \in F_2^3\}$, where $c$ takes all possible values? Hint: split the output into two halves.
+
+  Generate the lookup tables of all the functions $T_c$ of $F_2^3$ mapping $x$ to the low weight half of $D(x || c)$, where $D$ is the function of $F_2^6$ with LUT =new_dillon=.
+- Q? :: How are the $T_c$ related to one another? Try plotting their DDT/LAT to get an idea.
+-  :: 
+
+* TODO 6) More advanced functionalities of sboxU
+** TODO 7.1) FastLinearMapping
+** TODO 7.2) Easy composition and LUT building
+** TODO 7.3) Affine equivalence
