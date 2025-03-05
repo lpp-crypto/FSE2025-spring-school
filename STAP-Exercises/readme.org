@@ -129,11 +129,20 @@ As you can see, =.roots()= returns a list of tuples where the first element is a
 
 - Q? (8) :: Write a function that, given only some plaintext/ciphertext pairs obtained using a round-reduced miniMiMC encryption, returns the secret =K=. Start with a low number of rounds for a proof of concept, and then see how far you can go!
 
-* TODO The multivariate case
+* The multivariate case
+** CONTINUE Declaring a system of multivariate equations
+The =polynomial_ring= method of the =GF= class can conveniently take a list as input. We can thus write the following. Note the use of =.gens()= instead of =.gen()= !
+
+#+BEGIN_SRC python
+X, Y = GF(2**31-1).polynomial_ring(["X", "Y"]).gens()
+print(X, Y)
+print(X*Y**2 + X + 3*Y + 2)
+#+END_SRC
 
 
-* Putting it all together
-We define the following permutation =Cobaye= for any prime =p > 2**6=:
+** Attacking a toy primitive
+=Cobaye= is a permutation allowing an efficient low degree arithmetization of their verification. It is defined for any prime =p > 2**6=, and operates as follows.
+
 - interface :: =Cobaye= operates on =t= branches where =t= is at least 4, at most 10, and must be even.
 - round function :: =Cobaye= uses a Generalized Feistel Network structure, combined with a diffusion layer.
 
@@ -151,7 +160,7 @@ We define the following permutation =Cobaye= for any prime =p > 2**6=:
      + u = \sum_i x_i
      + y_{2i} += 2u
      + y_{2i+1} -= 2u
-- reference implementation :: A reference implementation in C++[fn:1] is provided below. 
+- reference implementation :: A reference implementation in C++[fn:1] that is unlikely to compile properly is provided below. 
 
 - Q (?) :: How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=? Make sure that your code is convincing!
 
