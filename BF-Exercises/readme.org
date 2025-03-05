@@ -391,10 +391,10 @@ At this stage, you have obtained something like this permutation.
 new_dillon = [0, 31, 9, 38, 52, 19, 45, 58, 35, 61, 46, 13, 50, 5, 42, 40, 57, 12, 18, 26, 16, 2, 43, 44, 15, 51, 24, 20, 27, 17, 25, 3, 62, 49, 37, 33, 1, 39, 32, 29, 60, 10, 59, 11, 54, 56, 14, 30, 53, 48, 4, 7, 47, 28, 36, 41, 34, 22, 55, 8, 21, 6, 63, 23]
 #+END_SRC
 
-- Q? (19) :: What pattern can you spot in the restriction of this function to all the sets of the form $S_c = \{(x || c), x \in F_2^3\}$, where $c$ takes all possible values? Hint: split the output into two halves.
+- Q? (19) :: What pattern can you spot in the restriction of this function to all the sets of the form $S_c = \{(x, c), x in F_2^3\}$, where $c$ takes all possible values? Hint: split the output into two halves.
 
-  Generate the lookup tables of all the functions $T_c$ of $F_2^3$ mapping $x$ to the low weight half of $D(x || c)$, where $D$ is the function of $F_2^6$ with LUT =new_dillon=.
+  Generate the lookup tables of all the functions $T_c$ of $F_2^3$ mapping $x$ to the low weight half of $D(x , c)$, where $D$ is the function of $F_2^6$ with LUT =new_dillon=.
 - Q? (20) :: How are the $T_c$ functions related to one another? Try plotting their DDT/LAT to get an idea.
-- Q? (21) :: Compute the LUT of the functions $U_c$ of $F_2^3$ such that, for all $(x,y)$, $D(x || y) ~=~ U_x(y) || T_y(x)$. 
+- Q? (21) :: Compute the LUT of the functions $U_c$ of $F_2^3$ such that, for all $(x,y)$, $D(x , y) ~=~ U_x(y) , T_y(x)$. 
 
 
