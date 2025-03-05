@@ -1,4 +1,4 @@
-% Time-stamp: <2025-03-05 16:02:11>
+% Time-stamp: <2025-03-05 17:18:53>
 
 
 \documentclass[presentation,aspectratio=1610]{beamer}
@@ -270,31 +270,69 @@
 \end{frame}
 
 
+\begin{frame}{Multi-Party Computations}
+  \begin{exampleblock}{Goal}
+    Allow multiple parties to evaluate a function together even if some parties are not trustworthy.
+  \end{exampleblock}
 
-% !TODO! do MPC in general
-
-\begin{frame}{Multi-Party Computations (1/2)}
+  \pause
   
+  \begin{alertblock}{Trivial example}
+    The majority vote: if a majority of $\myn$ parties are trustworthy, then taking $\mathsf{Maj}(x_0,...,x_{\myn-1})$ will give the correct output.
+  \end{alertblock}
+
+  \pause
+
+  \begin{block}{Applications}
+    \begin{itemize}
+    \item Masking (the side-channel attack counter-measure)
+    \item MPC-in-the-head (e.g. for signatures)
+    \item ...
+    \end{itemize}
+  \end{block}
 \end{frame}
 
-% !TODO! do masking as a particular case
-\begin{frame}{Multi-Party Computations (2/2)}
-  Masking
-\end{frame}
 
-% !TODO! do ZK (SNARK?) Private set intersection?
+
+
+\begin{frame}{Zero-Knowledge}
+  \begin{exampleblock}{Goal}
+    To be able to prove/argue that a function was evaluated correctly
+    without revealing its input.
+  \end{exampleblock}
+\end{frame}
 
 
 \subsection{One Approach to Rule Them All (?): Arithmetization}
 
-\begin{frame}{Arithmetization: General Principle}
-  %!TODO! write about arithmetization 
-  
+\begin{frame}{A Basic Example of Arithmetization}
+  ``Arithmetization'' depends on the subtleties of the \alert{protocol} you work with!
 
+  \pause
+  
+  \begin{exampleblock}{Verifying if $\myy = c(a \myx + b)^{10}+x$ in R1CS}
+    \begin{multicols}{2}
+      \begin{enumerate}
+      \item \only<2>{$t_{0} = ax$}\only<3->{\textcolor{lightgray}{$t_{0} = ax$}}
+      \item \only<2>{$t_{1} = t_{0}+b$}\only<3->{\textcolor{lightgray}{$t_{1} = t_0+b$}}
+      \item $t_{2} = t_{1} \times t_{1}$
+      \item $t_{3} = t_{2} \times t_{2}$
+      \item $t_{4} = t_{3} \times t_{3}$
+      \item $t_{5} = t_{2} \times t_{4}$
+      \item \only<2>{$t_{6} = c t_{5}$}\only<3->{\textcolor{lightgray}{$t_{6} = c t_{5}$}}
+      \item \only<2>{$y = t_{6} + x$}\only<3->{\textcolor{lightgray}{$y = t_{6} + x$}}
+      \end{enumerate}
+    \end{multicols}
+
+    \onslide<4->{This verification costs \alert{R1CS 4 constaints}}
+  \end{exampleblock}
+\end{frame}
+
+
+\begin{frame}{Arithmetization: General Principle}
   \begin{center}
     \includegraphics[width=8cm]{./figures/simpsons}
   \end{center}
-  
 \end{frame}
 
 
@@ -371,6 +409,18 @@
       \onslide<1->
     \end{tikzpicture}
   \end{center}
+\end{frame}
+
+
+\begin{frame}{A Crucial Change?}
+  $\F_q$ and $\F_2^n$ are not the same!
+
+  ...
+
+  But do we need to care that much?
+
+
+  Spoiler : the larger $q$, the more we need to, but still.
 \end{frame}
 
 

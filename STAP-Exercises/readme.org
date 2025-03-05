@@ -1,10 +1,229 @@
-#+TITLE: On the Gröbner-basis-based Cryptanalysis of Symmetric Primitives
+#+TITLE: On the Gröbner-basis-based Cryptanalysis of Symmetric Primitives: a Tutorial
 
 
 * Basics of Python/SAGE
-See the notes for the exercise session of Monday !TODO!
+See the notes for the exercise session of Monday, in particular the section on
+[[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/BF-Exercises#41-dealing-with-finite-fields-in-sage][dealing with finite fields]].
 
-#+BEGIN_SRC python :tangle bla.py
-gf = GF(2**31-1)
-print(gf)
+** Univariate polynomials
+Here is how you can generate a univariate polynomial in a finite field of size =q=.
+#+BEGIN_SRC python
+q = 17 # for example
+gf = GF(q)
+X = gf.polynomial_ring("X").gen()
+pol = X**3+X
+print( pol )
+print( pol( gf(3) ) )
+print( pol( gf(21) ) )
 #+END_SRC
+
+Note a difference from the $q = 2^n$ case we saw before: the =fetch_int= method is replaced by the "call" function of the finite field (i.e., we use the finite field instance like a normal python function). Doing this with a finite field of small characteristic is a bad idea: =gf(x)= is the finite field element corresponding to =x % q=: particularly fun in characteristic 2...
+
+** Duck typing
+Python uses /duck typing/ ("if it walks like a duck and quacks like a duck, then it's probably a duck"); meaning that there is no real type check: if the input to a function provides an interface that allows it to be processed, then the execution carries on.
+
+For example, consider the following basic function.
+
+#+BEGIN_SRC python
+def cube(x):
+    return x**3
+#+END_SRC
+
+The output of =cube(3)= should be easy to guess, however, what happens if you give as in put:
+- a string, say ="bla"= ? It fails: the operation ="bla"**3= is not defined.
+- the generator of a polynomial ring, so the =X= defined above? It works! =X**3= is defined, so it returns it.
+
+* The univariate case
+** The MiMC block cipher
+MiMC (pronounced like "meme C") is a simple block cipher defined over $F_q$: its round function is simply x \rightarrow (x+k_i)^d. In what follows, we consider a variant we will call miniMiMC. It is defined for any field size q, has both plaintext and master key taken from $F_q$, and then uses the following:
+- the subkeys are such that $k_i = K+i$, where $K$ is the master key, and where the first round is round 0;
+- d is the smallest integer such that x^d is a non-linear bijective monomial; and
+- the number of rounds is the smallest integer $R$ such that $d^R > q$.
+
+- Q? (1) :: Implement MiMC over $F_p$, where $p=2^{12}-5$, and $d=3$. 
+
+  If your implementation of =MiMC(plaintext, master_key)= is correct, then:
+  - =MiMC(0, 0) == 525=
+  - =MiMC(1, 0) = 2911=
+  - =MIMC(0, 2) = 431=
+
+** Generating polynomials
+Add the following to the start of your script.
+
+#+BEGIN_SRC python
+p = 2**12-5
+F = GF(p)
+X = F.polynomial_ring("X").gen()
+#+END_SRC
+
+- Q? (2) :: What happens if you call =MiMC(X, 2)=? If it doesn't return a polynomial, then amend your implementation of MiMC for it to work.
+
+** Generating polynomial generators
+In practice, AO primitives are usually defined for a lot of field sizes. Then, depending on the field size, different parameters are set (here, the exponent). It is then convenient to use /object oriented programming/.
+
+#+BEGIN_SRC python
+class miniMiMC:
+    def __init__(self, field_size):
+        self.exponent = <something>
+        self.number_of_rounds = <something>
+        self.field    = GF(field_size)
+
+    def round_function(self, x, ki):
+        return (x + ki)**self.exponent
+
+    def encrypt(self, plaintext, master_key):
+        x = plaintext
+        for i in range(0, self.number_of_rounds):
+            x = self.round_function(x, master_key + i)
+        return x
+
+    def decrypt(self, ciphertext, master_key):
+        return <something>
+#+END_SRC
+
+- Q? (3) :: fill in the =<something>= in the program above. Hint: the multiplicative inverse of =x= modulo =n= is given by the SAGE function =inverse_mod(x, n)=.
+  
+As you can see, there is no modulus operation: the inputs must be of the correct type!
+
+This class allows you to write code like the following.
+
+#+BEGIN_SRC python
+for p in [2**12-5, 2**31-1]:
+    print("--", p)
+    E_k = miniMiMC(p)
+    print(E_k.number_of_rounds) # there is no notion of protected
+                                # attribute in python
+    y = E_k.encrypt(0, 0)
+    print(y, E_k.decrypt(y, 0))
+#+END_SRC
+
+** Basic algebraic attack
+Let's tweak your implementation of miniMiMC even more. Python (and thus, SAGE) allow optional arguments in functions, including in function constructors. This is achieved using the following syntax.
+
+#+BEGIN_SRC python
+def some_function(x, y, potential_parameter=0):
+    return x + y + potential_parameter
+#+END_SRC
+
+We then have that =some_function(1, 2)= is 3, but =some_function(1,2, potential_parameter=2)= is 5.
+
+- Q? (4) :: modify the =miniMiMC= class so the constructor accepts an optional number of rounds. Use it to print the univariate representation of miniMiMC(x) reduced to 3 rounds for various keys.
+
+- Q? (5) :: nothing prevents us from putting the polynomial variable in the key, and have the plaintext be a constant. Print some such polynomials, again for 3-round miniMiMC. To be fancy, use a variable called =K= instead of =X=.
+
+- Q? (6) :: write a small function that takes as input a master key =K= and returns a handful of plaintext/ciphertext pairs corresponding to miniMiMC encryptions under key =K=.
+
+- Q? (7) :: write another function that takes a =list= of such plaintext/ciphertext pairs and returns equations that the master key needs to satisfy, one per pair.
+
+The key then is the =.roots()= method of a polynomial in SAGE. The following trivial example shows how it works.
+
+#+BEGIN_SRC python
+X = GF(2**31-1).polynomial_ring("X").gen()
+pol = X**2 - X
+print(pol.roots())
+pol = (X-1) * (X-2) * (X-17)**3
+print(pol.roots())
+#+END_SRC
+
+As you can see, =.roots()= returns a list of tuples where the first element is a root of the polynomial, and the second its multiplicity.
+
+- Q? (8) :: Write a function that, given only some plaintext/ciphertext pairs obtained using a round-reduced miniMiMC encryption, returns the secret =K=. Start with a low number of rounds for a proof of concept, and then see how far you can go!
+
+* TODO The multivariate case
+
+
+* Putting it all together
+We define the following permutation =Cobaye= for any prime =p > 2**6=:
+- interface :: =Cobaye= operates on =t= branches where =t= is at least 4, at most 10, and must be even.
+- round function :: =Cobaye= uses a Generalized Feistel Network structure, combined with a diffusion layer.
+
+  1. The GFN is denoted G_d and has a simple structure: for a vector x of length t of elements of F_p, it operates as follows.
+
+     G(x_0, ..., x_{t-1}) = (y_0, ..., y_{t-1}), with
+     + y_0 = x_0
+     + y_1 = x_1+x_0^{1/d}
+     + y_i = x_i+y_{i-1}^2, for all i>1.
+       Of course, d is the smallest non-linear bijective exponent.
+
+  2. The linear layer L operates as follows.
+
+     L(x_0, ..., x_{t-1}) = (y_0, ..., y_{t-1}), with
+     + u = \sum_i x_i
+     + y_{2i} += 2u
+     + y_{2i+1} -= 2u
+- reference implementation :: A reference implementation in C++[fn:1] is provided below. 
+
+- Q (?) :: How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=? Make sure that your code is convincing!
+
+Some small hints:
+- obviously, write clean code from the start so you can make sure that your equations are correct;
+- don't use a large value for =p=: it needlessly slows down computations, and may make the output harder to read;
+- choose =p= carefully to make sure that =d=3=, so that the equations are simpler.
+    
+#+BEGIN_SRC C++
+class Cobaye_Permutation
+{
+private:
+    unsigned int p;
+    unsigned int t;
+    unsigned int r;
+    unsigned int d;
+    unsigned int d_inv;
+    unsigned long int cstte ;
+
+public:
+    Cobaye_Permutation(
+        unsigned int _p,
+        unsigned int _t,
+        unsigned int _d
+        ) : p(_p), t(_t), d(_d), d_inv(2), cstte(1) {
+        // stupid computation of d_inv
+        while ((d * d_inv) % p != 1)
+            d_inv ++ ;
+    };
+
+    long int get_constant()
+    {
+        cstte = (32*cstte) % p ;
+        return cstte;
+    };
+
+
+    void cobaye_permutation(std::vector<long int> x) 
+    {
+        if (x.size() != t)
+            throw std::runtime_error("wrong length of x");
+        else
+        {
+            unsigned int t = x.size();
+            for(unsigned int i=0; i<r; i++)
+            {
+                // GFN layer
+                x[1] = (x[1] + pow_mod(x[0], d_inv, p)) % p;
+                for(unsigned int j=2; j<t; j+=1)
+                    x[j]   = (x[j] + x[j-1]*x[j+1]) % p; // square
+                // L layer
+                long int tmp = 0;
+                for(unsigned int j=0; j<t; j++)
+                    tmp = (tmp + x[j]) % p ;
+                tmp = (tmp * 2) % p;
+                for(unsigned int j=0; j<t; j+=2)
+                {
+                    x[j  ] += tmp;
+                    x[j+1] -= tmp;
+                }
+                // add constant
+                for(unsigned int j=0; j<t; j++)
+                    x[j] = (x[j] + cstte) % p;
+            }
+        }
+        return x;
+    };
+}
+
+#+END_SRC
+
+* Footnotes
+
+[fn:1] Why not in SAGE? Because I had to suffer through reference implementations in Rust, so you have to suffer too :P
+

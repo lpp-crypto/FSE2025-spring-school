@@ -348,7 +348,7 @@ print( P(a**2) )
 
 As you can see, a polynomial can be evaluated directly as if it where a regular python function. Its output is then itself a finite element, that you can cast back to an integer.
 
-- Q? (14) :: What is the differential uniformity of the monomial x \rightarrow x^{14} in the field $F_{2^n}$ for 4 \leq n \leq 10? What about the polynomial x \rightarrow x^{28}^{} + x^4 + x? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
+- Q? (14) :: What is the differential uniformity of the monomial x \rightarrow x^{14} in the field $F_{2^n}$ for 3 < n < 11? What about the polynomial x \rightarrow x^{28}^{} + x^4 + x? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
 
   What are the algebraic degrees of these functions? Again, use both a script and pencil/paper.
 ** 4.2) Finite field elements representations
