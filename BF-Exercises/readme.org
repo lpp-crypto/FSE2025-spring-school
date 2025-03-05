@@ -3,7 +3,7 @@
 * 1) Foreword
 This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]].
 
-Exercise questions are marked with the symbol =Q?=. If they contain the keyword *advanced*, then it is safe to skip them.
+Exercise questions are marked with the symbol =Q?=, and are numbered.
 
 /You are probably reading this content as nicely formatted markdown on github (namely, [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises][here]]), which is absolutely fine. However, it is actually an [[https://orgmode.org/][orgmode]] file that is best appreciated by opening directly the [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/STAP-Exercises/readme.org][readme.org]] in [[https://en.wikipedia.org/wiki/GNU_Emacs][emacs]]./
 
@@ -49,11 +49,18 @@ More details can be found for instance [[https://docs.python.org/3/tutorial/cont
 ** 2.2) SAGE
 [[https://www.sagemath.org/][SAGE]] can be seen as a super-set of Python. It comes bundled with libraries that can do *a lot* of scientific computations. In particular for us, it implements finite field arithmetic, and contains by default some basic tools to study S-boxes.
 
-To install it, head over [[https://doc.sagemath.org/html/en/installation/index.html][here]] (though it might not work /during/ the exercise session).
-** 2.3) sboxU
-[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes, that you can =import= from SAGE once you have properly installed it. Instructions to this end are available on its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
+Installing it can be a huge pain: if it is in the repository of your OS, then go with that (i.e., =sudo apt install sage= on ubuntu).
 
-** TODO 2.4) Notebooks and scripts
+Otherwise, head over [[https://doc.sagemath.org/html/en/installation/index.html][here]] (but don't bother doing it /during/ the exercise session, it won't work)... and good luck :D
+** 2.3) sboxU
+[[https://github.com/lpp-crypto/sboxU][sboxU]] is a library specifically intended to study S-boxes. You can =import= its functions from SAGE once you have properly installed it. Instructions to this end are available in its repository ([[https://github.com/lpp-crypto/sboxU][here]]). Unlike "regular" Python programs, =sboxU= must be compiled: large chunks of it are written in =C++= for speed. We will see how that works on Friday (see [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/Tools#adding-some-c-to-it][here]]).
+
+** 2.4) Notebooks and scripts
+If you don't have SAGE, you can go to [[https://cocalc.com/features/sage?utm_source=sagemath.org&utm_medium=landingpage][the cocalc website]] and setup an account. You won't be able to use sboxU, but it will be good enough.
+
+Sage can be used in interactive mode (directly in a terminal, just by running the command line =sage=), in a notebook like =jupyter= (a possible way to run it on =cocalc=), or as scripts. Interactive mode and notebooks are nice for quick and dirty prototyping, however, a script leads to cleaner code and code-based arguments in the mildly longer term. To write a sage script, create a file called =some_name.py= or =some_name.sage=, open it with you favourite text editor, and start your code with the line =from sage.all import *=. Then, simply use the command line =sage some_name.py= to run it!
+
+
 * 3) The core tools to study S-boxes
 SAGE comes bundled with some tools (in particular, the =sage.crypto.sboxes= and =sage.crypto.sbox= modules), and =sboxU= provides additional ones. Let's have a look what we can do combining these two.
 
@@ -66,8 +73,8 @@ from sage.crypto.sboxes import sboxes
 
 In this case, =sboxes= is a dictionary where the keys are algorithm names, and the entries are =sage.crypto.sbox.SBox= instances containing their lookup tables. 
 
-- Q? :: Print the lookup table of the S-box of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
-- Q? :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
+- Q? (1) :: Print the lookup table of the S-box of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
+- Q? (2) :: Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
   
 ** 3.2) The tables
 Some of the following functions also work for field $F_q$ where $q = p^n$ with $p > 2$, but we won't get into that today.
@@ -99,8 +106,8 @@ print(spectrum)
 - Downsides :: rather slow, which is a problem if S-boxes get bigger; need to re-implement the differential spectrum computation; differential spectrum computation is memory inefficient.
 
   
-- Q? :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
-- Q? :: Write a function computing the differential spectrum of an S-box without having to store the full DDT in memory.
+- Q? (3) :: Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
+- Q? (4) :: Write a function computing the differential spectrum of an S-box without having to store the full DDT in memory.
 
 **** 3.2.a.ii) Using sboxU
 As a general rule, the functions in sboxU are much better optimized (lower memory and much lower time complexities, at least because they are written in C++). It relies on lower level types than SAGE, meaning that an S-box is just a =list=, and a DDT is a =list= of =list=. There is also more of them. For example, the same as above can be done using the following.
@@ -116,7 +123,7 @@ print(pretty_spectrum(spectrum))
 #+END_SRC
 
 
-- Q? :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
+- Q? (5) :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
 
 *Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
 *** 3.2.b) Linear properties
@@ -151,7 +158,7 @@ Advantages and inconvenients are the same as for the differential case.
 - Downsides :: rather slow, which is a problem if S-boxes get bigger; need to re-implement the Walsh spectrum computation; walsh spectrum computation is memory inefficient.
 
   
-- Q? :: Compute the extended Walsh spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why? (hint: the why is exactly the same as before!)
+- Q? (6) :: Compute the extended Walsh spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why? (hint: the why is exactly the same as before!)
 
 **** 3.2.a.ii) Using sboxU
 As before, sboxU can do the same, but quicker.
@@ -169,19 +176,19 @@ Note the =absolute=True= parameter given to the =pretty_spectrum= function: it e
 
 sboxU provides the =scal_prod= function, which we will discuss later.
 
-- Q? :: Consider the same 16x16 S-box as above. What is its linearity?
+- Q? (7) :: Consider the same 16x16 S-box as above. What is its linearity?
 
 It is also possible to *invert* a LAT, i.e., given an LAT, to return the corresponding function. This can be done with the =invert_lat= function.
 
-- Q? :: Looking at the S-box of =PRINCE=, compute its LAT, print it, and then call =invert_lat= on it. Did it work? Now, swap some rows of the lat, and call =invert_lat= again. What do you get?
+- Q? (8) :: Looking at the S-box of =PRINCE=, compute its LAT, print it, and then call =invert_lat= on it. Did it work? Now, swap some rows of the lat, and call =invert_lat= again. What do you get?
 
 *** 3.2.c) Boomerang properties
 The *Boomerang Connectivity Table (BCT)* is also present in both SAGE and sboxU (=SBox.boomerang_connectivity_table()= for SAGE, =bct= for sboxU), and the spectrum is only in sboxU (=boomerang_spectrum(lut)=).
 *** 3.3 Algebraic normal form
 SAGE provides another useful class called  =BooleanFunction=, that is =sage.crypto.boolean_function=. A =BooleanFunction= must be initialized with a lookup table, and objects of this class have the =algebraic_normal_form()= method that returns... the Algebraic Normal Form (ANF). sboxU contains a convenient wrapper, =algebraic_normal_form(lut)=, that evaluates the ANF of each coordinate in parallel.
 
-- Q? :: How many coordinates of the 4-bit S-box of =SKINNY= (key ="SKINNY_4"= in the =sboxes= dictionnary of =sage.crypto.sboxes=) are quadratic?
-- Q? :: How many terms of each degree are in the ANF of each coordinate? The monomials in the ANF of a boolean function can be iterated over using a simple loop: =for term in some_anf ...= ; then each of these monomials has a =degree= method.
+- Q? (9) :: How many coordinates of the 4-bit S-box of =SKINNY= (key ="SKINNY_4"= in the =sboxes= dictionnary of =sage.crypto.sboxes=) are quadratic?
+- Q? (10) :: How many terms of each degree are in the ANF of each coordinate? The monomials in the ANF of a boolean function can be iterated over using a simple loop: =for term in some_anf ...= ; then each of these monomials has a =degree= method.
 
 We can then use this software stack to experimentally test the evolution of the algebraic degree of a specific structure. Consider the following function =phi=, intended to operate on 15-bit entries.
 
@@ -218,7 +225,7 @@ def phi(x):
 
 #+END_SRC
 
-- Q? :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Why do you think that is?
+- Q? (11) :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Why do you think that is?
 *** 3.2.d) Jackson Pollock representation
 (Yes, that's a thing; yes, it's my fault)
 
@@ -237,7 +244,7 @@ save_pollock(t,
 
 If you don't have sboxU, its source code is in [[./py/save_pollock.py]]
 
-- Q? :: Generate the picture representation of the LAT of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
+- Q? (12) :: Generate the picture representation of the LAT of the S-box of =Kuznyechik=. Play around with the values of =vmax= and the =color_scheme= (try ="spectral"=, ="Greys"=, ="coolwarm"=). Anything strange?
 
 
 * 4) S-box representations
@@ -282,7 +289,7 @@ print( apply_bin_mat(2, M) )
 print( apply_bin_mat(4, M) )
 #+END_SRC
 
-- Q? :: Compute the lookup table of the 4-bit permutation $(x_0, ..., x_3) \mapso (x_0, x_0+x_1, x_3, x_3)$ using bit fiddling (i.e., masks and shifts), and using a matrix multiplication.
+- Q? (13) :: Compute the lookup table of the 4-bit permutation $(x_0, ..., x_3) \mapso (x_0, x_0+x_1, x_3, x_3)$ using bit fiddling (i.e., masks and shifts), and using a matrix multiplication.
 ** 4.1) Dealing with finite fields in SAGE
 *** 4.1.a) Opening warning
 */!\* The way finite fields are implemented in SAGE is very convenient, but it definitely has its quirks. In particular, its subtleties can be very version dependent. The presentation I give below is valid for slightly older versions of SAGE, but will still work with the latest ones---at least for a bit. 
@@ -341,7 +348,7 @@ print( P(a**2) )
 
 As you can see, a polynomial can be evaluated directly as if it where a regular python function. Its output is then itself a finite element, that you can cast back to an integer.
 
-- Q? :: What is the differential uniformity of the monomial $x \mapsto x^{14}$ in the field $F_{2^n}$ for $n \in \{4, ..., 10\}$? What about the polynomial $x \mapsto x^{28}^{} + x^4 + x$? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
+- Q? (14) :: What is the differential uniformity of the monomial $x \mapsto x^{14}$ in the field $F_{2^n}$ for $n \in \{4, ..., 10\}$? What about the polynomial $x \mapsto x^{28}^{} + x^4 + x$? For the second question, you can both implement a small script, and use paper and pencil using your results to the first question.
 
   What are the algebraic degrees of these functions? Again, use both a script and pencil/paper.
 ** 4.2) Finite field elements representations
@@ -364,7 +371,7 @@ print( g.modulus() )
 
 Note the optional argument "name": it is basically the string representation of $\alpha_P$, which is then used when displaying field elements. If you specify the modulus by hand, then you have to specify this name by hand also, otherwise SAGE will yell at you.
 
-- Q? :: rebuild the AES S-box by hand, see for example [[https://en.wikipedia.org/wiki/Rijndael_S-box][wikipedia]] for its definition.
+- Q? (15) :: rebuild the AES S-box by hand, see for example [[https://en.wikipedia.org/wiki/Rijndael_S-box][wikipedia]] for its definition.
 * 7) The only known APN permutation in even dimension
 
 The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
@@ -373,24 +380,21 @@ The following is also =list(sage.crypto.sboxes.sboxes["APN_6"])=.
 dillon = [0, 54, 48, 13, 15, 18, 53, 35, 25, 63, 45, 52, 3, 20, 41, 33, 59, 36, 2, 34, 10, 8, 57, 37, 60, 19, 42, 14, 50, 26, 58, 24, 39, 27, 21, 17, 16, 29, 1, 62, 47, 40, 51, 56, 7, 43, 44, 38, 31, 11, 4, 28, 61, 46, 5, 49, 9, 6, 23, 32, 30, 12, 55, 22]
 #+END_SRC
 
-** Recover an equivalent permutation
-- Q? :: What are the main cryptographic properties of this function? Does this Walsh spectrum ring a bell? What about its differential uniformity?
-- Q? :: Generate the Jackson Pollock representation of its LAT. Check the distribution of the coefficients in each column of the LAT. Which column indices do not contain an 8 (or -8)? What structure does this set have?
-- Q? (advanced) :: Build a linear permutation such that applying to the column indices will put all the "strange" ones to the left. How can you use this linear permutation andthe =dillon= lookup table to build another S-box that has this even more structured LAT?
+** 7.1) Recover an equivalent permutation
+- Q? (16) :: What are the main cryptographic properties of this function? Does this Walsh spectrum ring a bell? What about its differential uniformity?
+- Q? (17) :: Generate the Jackson Pollock representation of its LAT. Check the distribution of the coefficients in each column of the LAT. Which column indices do not contain an 8 (or -8)? What structure does this set have?
+- Q? (18) :: Build a linear permutation such that applying to the column indices will put all the "strange" ones to the left. How can you use this linear permutation and the =dillon= lookup table to build another S-box that has this even more structured LAT?
 
-** Decomposing the new permutation
+** 7.2) Decomposing the new permutation
 At this stage, you have obtained something like this permutation.
 #+BEGIN_SRC python
 new_dillon = [0, 31, 9, 38, 52, 19, 45, 58, 35, 61, 46, 13, 50, 5, 42, 40, 57, 12, 18, 26, 16, 2, 43, 44, 15, 51, 24, 20, 27, 17, 25, 3, 62, 49, 37, 33, 1, 39, 32, 29, 60, 10, 59, 11, 54, 56, 14, 30, 53, 48, 4, 7, 47, 28, 36, 41, 34, 22, 55, 8, 21, 6, 63, 23]
 #+END_SRC
 
-- Q? :: What pattern can you spot in the restriction of this function to all the sets of the form $S_c = \{(x || c), x \in F_2^3\}$, where $c$ takes all possible values? Hint: split the output into two halves.
+- Q? (19) :: What pattern can you spot in the restriction of this function to all the sets of the form $S_c = \{(x || c), x \in F_2^3\}$, where $c$ takes all possible values? Hint: split the output into two halves.
 
   Generate the lookup tables of all the functions $T_c$ of $F_2^3$ mapping $x$ to the low weight half of $D(x || c)$, where $D$ is the function of $F_2^6$ with LUT =new_dillon=.
-- Q? :: How are the $T_c$ related to one another? Try plotting their DDT/LAT to get an idea.
--  :: 
+- Q? (20) :: How are the $T_c$ functions related to one another? Try plotting their DDT/LAT to get an idea.
+- Q? (21) :: Compute the LUT of the functions $U_c$ of $F_2^3$ such that, for all $(x,y)$, $D(x || y) ~=~ U_x(y) || T_y(x)$. 
 
-* TODO 6) More advanced functionalities of sboxU
-** TODO 7.1) FastLinearMapping
-** TODO 7.2) Easy composition and LUT building
-** TODO 7.3) Affine equivalence
+
