@@ -1,4 +1,4 @@
-% Time-stamp: <2025-02-27 16:52:48>
+% Time-stamp: <2025-03-05 16:02:11>
 
 
 \documentclass[presentation,aspectratio=1610]{beamer}
@@ -101,10 +101,9 @@
     \begin{itemize}
     \item Should the primitive work in many context? \hfill\onslide<4>{Modularity vs. Single use}
     \item Do we care about nonce-misuse? \hfill\onslide<4>{Robustness vs. ``not our problem''}
-    \item
     \end{itemize}
     \begin{center}
-      How do we define the security that the primitive must provide?
+      How do we define the \textbf{security} that the primitive must provide?
     \end{center}
   \end{exampleblock}
 \end{frame}
@@ -139,6 +138,26 @@
 \end{frame}
 
 
+\begin{frame}{What Chacha looks like}
+  \begin{columns}
+    \hfill
+    \begin{column}{0.4\textwidth}
+      \begin{center}
+        \includegraphics[width=4cm]{./figures/chacha}
+      \end{center}
+    \end{column}
+    \hfill
+    \begin{column}{0.4\textwidth}
+      \begin{itemize}
+      \item Addition ~/~ Rotation ~/~ XOR
+      \item 256-bit key
+      \item 512-bit state
+      \end{itemize}
+    \end{column}
+    \hfill
+  \end{columns}
+\end{frame}
+
 
 \begin{frame}{RAM Encryption}
   \begin{center}
@@ -151,7 +170,7 @@
         \draw[color=gray] (0, 0) rectangle (5, 2.5) node[pos=0.85,above] {\textbf{Secure} RAM};
       }
       \onslide<4->{
-        \draw[color=blue] (0, 0) rectangle (4, 2) node[pos=0.85,above] {Trivial Protocol};
+        \draw[color=blue] (0, 0) rectangle (4.8, 2) node[pos=0.75,above] {Trivial Protocol};
       }
       \onslide<5->{
         \draw[color=red] (0, 0) rectangle (4, 1) node[pos=0.6,above] {Cryptographic Primitives};
@@ -162,6 +181,22 @@
     \item<6-> We want \alert{very low latency} \alert{block encryption}.
     \item<7> PRINCE? QARMA? not so clear at this stage.
     \end{itemize}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{What PRINCE looks like}
+  \begin{center}
+    \includegraphics[width=12cm]{./figures/prince}
+
+    \begin{itemize}
+    \item 4-bit S-box optimized for hardware
+    \item 2 different matrices
+    \item FX construction
+    \item ``$\alpha$-reflexion''
+    \item inverse rounds used in the second half
+    \end{itemize}
+
   \end{center}
 \end{frame}
 
@@ -238,7 +273,14 @@
 
 % !TODO! do MPC in general
 
+\begin{frame}{Multi-Party Computations (1/2)}
+  
+\end{frame}
+
 % !TODO! do masking as a particular case
+\begin{frame}{Multi-Party Computations (2/2)}
+  Masking
+\end{frame}
 
 % !TODO! do ZK (SNARK?) Private set intersection?
 
@@ -267,6 +309,68 @@
   
   \vfill
 
+\end{frame}
+
+
+\begin{frame}{Symmetric Techniques for Advanced Protocols}
+  \begin{center}
+    \begin{tikzpicture}[xscale=1.0, yscale=1.0]
+      % Protocols
+      \draw[color=dark-gray] (5, 1) node{{\Large FHE}} ; 
+      \draw[color=dark-gray] (0, 1) node{{\Large MPC}} ; 
+      \draw[color=dark-gray] (10, 1) node{{\Large ZK}} ;
+      \pause
+      % -- MPC
+      \draw (0, -1) node {Masking} ;
+      \draw (0, -2) node {MPC-in-the-head} ;
+      \draw (0, -2.5) node {(signatures...)} ;
+      \draw (0, -4) node {PCF} ;
+      \draw (0, -5) node {VDF} ;
+      % -- FHE
+      \draw (5, -1) node {BGV} ;
+      \draw (5, -2) node {BLV} ;
+      \draw (5, -4) node {TFHE} ;
+      % -- ZK
+      \draw (10, -1) node {R1CS} ;
+      \draw (10, -2) node {AIR} ;
+      \draw (10, -4) node {Plonk} ;
+      % AO?
+      \pause
+      \draw[color=navy] (-2, -3) rectangle (12, 0) ;
+      \draw[color=navy,style=dotted] (8, -5) rectangle (12, -3) ;
+      \draw[color=navy] (9.5, 0.2) node{Arithmetization-Oriented} ;
+      \pause
+      \draw[color=brown,style=dashed] (-1.9, -2.9) rectangle (6.5, -0.7) ;
+      \draw[color=brown] (5.5, -0.5) node {AO evaluation};
+      \pause
+      \draw[color=darkgreen,style=dashed] (8.5, -4.7) rectangle (11.5, -0.7) ;
+      \draw[color=darkgreen] (10.1, -0.5) node {AO verification};
+      \pause
+      \draw[color=pink] (-1.5, -4.4) rectangle (1.5, -3.6) ;
+      \pause
+      \draw[color=magenta] (3.3, -4.4) rectangle (6.7, -3.6) ;
+      \pause
+      \draw[color=orange] (-1.5, -5.4) rectangle (1.5, -4.6) ;
+      % Alphabets
+      \pause                    % masking
+      \draw[color=red] (1.2, -1) node{$\mathbb{F}_2^n ; \mathbb{F}_p$} ;
+      \pause                    % mpc in the head
+      \draw[color=red] (1.8, -2.25) node{$\mathbb{F}_q$};
+      \pause                    % PCF
+      \draw[color=red] (1.2, -4) node{$\mathbb{F}_2^n$};
+      \pause                    % VDF
+      \draw[color=red] (1.2, -5) node{$\mathbb{F}_q$};
+      \pause                    % BGV
+      \draw[color=red] (5.7, -1) node{$\mathbb{F}_2^n$} ;
+      \pause                    % BLV
+      \draw[color=red] (5.7, -2) node{$\mathbb{F}_2^n$} ;
+      \pause                    % TFHE
+      \draw[color=red] (6, -4) node{$\mathbb{Z} / m \mathbb{Z}$} ;
+      \pause                    % ZK
+      \draw[color=red] (11, -2.5) node{$\mathbb{F}_p$};
+      \onslide<1->
+    \end{tikzpicture}
+  \end{center}
 \end{frame}
 
 
@@ -340,7 +444,7 @@
 \appendix
 
 \bibliographystyle{alpha}
-\bibliography{../biblio,../abbrev2,../crypto}
+\bibliography{../abbrev2,../crypto,../biblio}
 
 
 \end{document}
