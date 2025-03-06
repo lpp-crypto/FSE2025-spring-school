@@ -1,13 +1,6 @@
-def save_pollock(mat,
-                 color_scheme="CMRmap_r",
-                 file_name="pollock",
-                 vmin=0,
-                 vmax=20,
-                 folder=None,
-                 frame=True,
-                 visible_axes=True,
-                 colorbar=True,
-                 file_type="png"):
+def save_pollock(mat, color_scheme="CMRmap_r", file_name="pollock",
+                 vmin=0, vmax=20, folder=None, frame=True,
+                 visible_axes=True, colorbar=True, file_type="png"):
     import matplotlib.pyplot as plt
     fig, p = plt.subplots(figsize=(15,15))
     if isinstance(mat, list):
