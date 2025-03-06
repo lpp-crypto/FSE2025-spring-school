@@ -1,4 +1,4 @@
-% Time-stamp: <2025-03-05 17:18:53>
+% Time-stamp: <2025-03-06 16:56:49>
 
 
 \documentclass[presentation,aspectratio=1610]{beamer}
@@ -131,7 +131,7 @@
     \end{tikzpicture}
 
     \begin{itemize}
-    \item<6-> We want \alert{software efficient} (computer and smartphone but not micro-controllers) efficient \alert{AEAD}.
+    \item<6-> We want \alert{software efficient} (computer and smartphone but not micro-controllers) efficient \alert{AEAD} for packets of a few tens to a few billion bytes.
     \item<7> AES-GCM; Chacha-poly1305.
     \end{itemize}
   \end{center}
@@ -152,6 +152,7 @@
       \item Addition ~/~ Rotation ~/~ XOR
       \item 256-bit key
       \item 512-bit state
+      \item Defined over 32-bit words
       \end{itemize}
     \end{column}
     \hfill
@@ -178,7 +179,7 @@
     \end{tikzpicture}
 
     \begin{itemize}
-    \item<6-> We want \alert{very low latency} \alert{block encryption}.
+    \item<6-> We want \alert{very low latency} \alert{block encryption} for specific (and small) block sizes.
     \item<7> PRINCE? QARMA? not so clear at this stage.
     \end{itemize}
   \end{center}
@@ -300,6 +301,23 @@
     To be able to prove/argue that a function was evaluated correctly
     without revealing its input.
   \end{exampleblock}
+
+  \pause
+
+  \begin{alertblock}{Trivial example}
+    I know a secret key $K$ because I can encrypt any string with a block cipher $E_K$.
+  \end{alertblock}
+
+  \pause
+  
+  \begin{block}{Applications}
+    \begin{itemize}
+    \item Offload computation to untrusted 3rd parties
+    \item Electronic vote (mixnets)
+      \pause
+    \item BLOCKCHAIN!!1!
+    \end{itemize}
+  \end{block}
 \end{frame}
 
 
@@ -326,6 +344,18 @@
 
     \onslide<4->{This verification costs \alert{R1CS 4 constaints}}
   \end{exampleblock}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{A not basic at all example of arithmetization}
+  \begin{center}
+    \includegraphics[width=10cm]{./figures/skyscraper}
+
+    \vspace{1cm}
+
+    {source: \emph{Skyscraper: Fast Hashing on Big Primes}, \url{https://eprint.iacr.org/2025/058.pdf}}
+  \end{center}
 \end{frame}
 
 
@@ -366,7 +396,7 @@
       \draw (0, -5) node {VDF} ;
       % -- FHE
       \draw (5, -1) node {BGV} ;
-      \draw (5, -2) node {BLV} ;
+      \draw (5, -2) node {FV} ;
       \draw (5, -4) node {TFHE} ;
       % -- ZK
       \draw (10, -1) node {R1CS} ;
@@ -398,10 +428,8 @@
       \draw[color=red] (1.2, -4) node{$\mathbb{F}_2^n$};
       \pause                    % VDF
       \draw[color=red] (1.2, -5) node{$\mathbb{F}_q$};
-      \pause                    % BGV
-      \draw[color=red] (5.7, -1) node{$\mathbb{F}_2^n$} ;
-      \pause                    % BLV
-      \draw[color=red] (5.7, -2) node{$\mathbb{F}_2^n$} ;
+      \pause                    % BGV/FV
+      \draw[color=red] (5.8, -1.5) node{$\mathbb{Z} / m \mathbb{Z}$} ;
       \pause                    % TFHE
       \draw[color=red] (6, -4) node{$\mathbb{Z} / m \mathbb{Z}$} ;
       \pause                    % ZK
@@ -413,14 +441,24 @@
 
 
 \begin{frame}{A Crucial Change?}
-  $\F_q$ and $\F_2^n$ are not the same!
+  \begin{center}
+    {\large $\F_\myq$ and $\F_2^\myn$ are not the same!}
+  \end{center}
 
-  ...
+  \pause
 
-  But do we need to care that much?
+  \begin{exampleblock}{My Personal Opinion}
+    \begin{itemize}
+      \setlength\itemsep{0.3cm}
+    \item Indeed. \pause In particular, $\myq$ primes means no Frobenius automorphisms, meaning linear operations are of \alert{low degree only}.
+      \pause
+    \item Low degree arithmetization implies low degree algebraic modeling
 
-
-  Spoiler : the larger $q$, the more we need to, but still.
+      ~\hfill \alert{beware of algebraic attacks!}
+      \pause
+    \item \textbf{However} good design approaches are good design approaches, regardless of the underlying structure. 
+    \end{itemize}
+  \end{exampleblock}
 \end{frame}
 
 
@@ -446,47 +484,251 @@
       \item Very time consuming...
       \item But resets the noise to a \alert{base level} \pause
       \item Can be composed with \alert{arbritrary table lookups!} \pause \hfill {\emph{\color{gray}$*$ S-box sounds $*$}}
-      \item If the ring size is even, it is better if it is \alert{nega-cyclic}
+      \item If the ring size is even, it is better if it is \alert{nega-cyclic} ($S(x + 2^{\myn-1}) = - S(x)$)
       \end{itemize}
     \end{description}
   \end{exampleblock}
 \end{frame}
 
 \begin{frame}{TFHE: corresponding stream ciphers}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{description}
+        \setlength\itemsep{0.3cm}
+      \item<1->[Elisabeth-4] \cite{AC:CHMS22} ; $\myq = 2^4$
+
+        {\small
+        Uses a constant key register on which index-dependent non-linear functions are applied.
+
+        Can be linearized~\cite{AC:GBJR23}}
+                
+    \item<2->[Gabriel...] \cite{INDOCRYPT:HofMeaSta23}
+
+      {\small (Elisabeth-4 follow-ups)}
+
+        
+      \item<3->[FRAST] \cite{ToSC:CCHLOS24} ; $\myq = 2^4$
+        {\small A block cipher in a CTR-mode variant.
+        
+        {\color{darkgreen}See you at the rump session :D}}
+
+        
+      \item<4->[Transistor] \cite{EPRINT:Transistor} ; $\myq = 2^4+1$
+
+        {\small SNOW-like round structure
+
+        {\color{darkgreen}See you at Anne's invited talk :D}}
+      \end{description}
+    \end{column}
+    \hfill
+    \begin{column}{0.45\textwidth}
+      \onslide<1->{
+        \includegraphics[width=6cm]{./figures/elisabeth}
+
+        source: \emph{Towards Case-Optimized Hybrid Homomorphic
+          Encryption Featuring the Elisabeth Stream Cipher}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{BGV/FV: corresponding stream ciphers}
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{description}
+        \setlength\itemsep{0.3cm}
+      \item<1->[$\cdot$ASTA] $\myq = 2$ or large prime
+
+        {\small Use very few rounds with a low degree.
+
+          Rely on large, randomly generated, nonce-dependent matrices.}
+          
+      \item<2->[``Kreyvium''] \cite{FSE:CCFLNP16} $\myq = 2$
+
+        {\small Basically Trivium!
+
+          Binary state updated with NLFSRs.}
+          
+                
+    \item<3->[HERA] \cite{AC:CHKLLL21} $\myq$ large prime 
+
+        {\small A block cipher in a kind of CTR-mode variant.}
+      \end{description}
+    \end{column}
+    \hfill
+    \begin{column}{0.45\textwidth}
+      \onslide<1->{
+        \includegraphics[width=6cm]{./figures/dasta}
+
+        source:
+
+        \emph{Dasta -- Alternative Linear Layer for Rasta}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\subsection{MPC: low multiplicative depth, and PCF}
+
+\begin{frame}{Low Multiplicative Depth}
+  
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      \begin{description}
+        \setlength\itemsep{0.6cm}
+      \item<1->[LowMC] \cite{EC:ARSTZ15} $\myq = 2$ 
+
+        {\small SPN with partial layer of quadratic S-boxes.
+
+          Rely on large, randomly generated  matrices.
+
+        Only one encryption/key; broken anyway}
+          
+    \item<2->[Ciminion] \cite{EC:DGGK21} no specific constraints on $\myq$
+
+      {\small 3-branch Feistel network with a single
+        multiplication/round.}
+          
+    \item<3->[small-pSquare] \cite{EPRINT:GMMMS24} $\myq = 127$
+
+      {\small Generalized Feistel network with low degree round function.
+
+      Optimized specifically for hardware masking.}
+      \end{description}
+    \end{column}
+    \hfill
+    \begin{column}{0.35\textwidth}
+      \onslide<1->{
+        \includegraphics[width=4cm]{./figures/LowMC}
+
+        source:
+
+        \emph{Ciphers for MPC and FHE}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Pseudo-Correlated Functions}
+
+  \begin{exampleblock}{A new challenger!}
+    {\small 
+      At the start of some MPC protocols, it is necessary to share some
+      bits that are correlated between the participants.
+
+      \begin{center}
+        Very low multiplicative depth ~$\cdot$~ \pause
+        Very low data complexity ~$\cdot$~ \pause
+        \alert{Only known plaintext, no chosen plaintext!}
+      \end{center}
+    }
+  \end{exampleblock}
+
+  \pause
+  
   \begin{description}
-    \setlength\itemsep{0.3cm}
-  \item[Elisabeth-4] \cite{AC:CHMS22} ; $\myq = 2^4$
-    \begin{itemize}
-    \item Uses a constant key register on which index-dependent non-linear functions are applied.
-    \item Can be linearized~\cite{AC:GBJR23}
-    \end{itemize}
+  \item [Crypto DarkMatter] \cite{TCC:BIPSW18}
+    \begin{equation*}
+      F_k(x) := \left(\sum_{i = 0}^{n-1} k_i x_i \mod 2 + \sum_{i = 0}^{n-1} k_i x_i \mod 3\right) \mod{2}, \quad \text{ for } x \in \{0,1\}^n.  
+    \end{equation*}
+
     \pause
-    
-  \item[Gabriel...] \cite{INDOCRYPT:HofMeaSta23}  (Elisabeth-4 follow-ups)
-    \pause
-    
-  \item[FRAST] \cite{ToSC:CCHLOS24} ; $\myq = 2^4$
-    \begin{itemize}
-    \item A block cipher in a CTR-mode variant.
-    \item {\color{darkgreen}See you at the rump session :D}
-    \end{itemize}
-    \pause
-    
-  \item[Transistor] \cite{EPRINT:Transistor} ; $\myq = 2^4+1$
-    \begin{itemize}
-    \item SNOW-like round structure
-    \item {\color{darkgreen}See you at Anne's invited talk :D} \pause
-    \end{itemize}
+  \item [VDLPN] \cite{add:BCGI+20}
+    \begin{equation*}
+      f_k(x) = \bigoplus_{i=1}^D \bigoplus_{j=1}^w\bigwedge_{\ell=1}^i (x_{i,j,\ell} \oplus k_{i,j,\ell}),
+    \end{equation*}
   \end{description}
 \end{frame}
 
 
+\subsection{ZK: Hash function with AO verification}
+
+
+
+\begin{frame}{Arithmetization-Oriented Verification: CCZ-equivalence?}
+  \vfill
+
+  \begin{center}
+    \includegraphics[width=8cm]{./figures/simpsons}
+  \end{center}
+  
+  \vfill
+\end{frame}
+
+
+\begin{frame}{ZK-Friendly Hash Functions}
+  
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      \begin{description}
+        \setlength\itemsep{0.1cm}
+      \item<1->[Poseidon] \cite{EC:GLRRS20} no specific constraints $\myq$ 
+
+        {\small SPN with partial layer of low degree monomial S-boxes.
+
+          Full rounds -- partial round -- full rounds.}
+        
+      \item<2->[Rescue] \cite{ToSC:AABDS20} $\myq$ large prime
+
+        {\small SPN with low degree monomials and their inverses.
+
+          Most ``AES-like'', also most secure at this stage.}
+        
+      \item<3->[Griffin] \cite{C:GHRSWW23} $\myq$ large prime
+
+        {\small Feistel variant with multiplications instead.
+
+          \alert{Particularly vulnerable to algebraic attacks!}}
+
+      \item<4->[Anemoi] \cite{C:BBCPSV23}$\myq = 2^n$ or large prime
+
+        {\small Uses the ``Flystel'', a high degree S-box
+          \alert{CCZ-equivalent} to a function of low degree.}
+      \end{description}
+    \end{column}
+    \hfill
+    \begin{column}{0.37\textwidth}
+      \onslide<3->{
+        \begin{center}
+          \includegraphics[width=5cm]{./figures/griffin.pdf}
+
+          source:
+          {\small
+            \emph{``The Algebraic Freelunch: Efficient {Gr{\"o}bner} Basis Attacks Against Arithmetization-Oriented Primitives''}}
+        \end{center}
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+
 \section{Conclusion}
 
+
+
 \begin{frame}{Conclusion}
+  ~
+  {
+    \begin{itemize}
+    \item The shape of symmetric primitives has always been dictated by \alert{external constraints} \pause
+    \item New \alert{advanced protocols} intended to secure \alert{computations} need symmetric primitives \pause
+    \item The constraints they impose on the designs imply an \alert{unusual look at first glance} \pause
+    \item The constraints they impose \alert{vary}, and \textbf{we should be careful about lumping them together} \pause
+      
+    \item A lot of new designs, very little cryptanalysis.
+    \end{itemize}
+  }
   \pause\vspace{1cm}
   
   \begin{center}
+    \large{\alert{We need more cryptanalysis! \pause \textbf{MOARR!1!!}}}
+
+    \pause\vspace{1cm}
     \textbf{Thank you!}
   \end{center}
 \end{frame}
