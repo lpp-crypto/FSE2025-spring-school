@@ -1,11 +1,11 @@
 #+TITLE: On the Gröbner-basis-based Cryptanalysis of Symmetric Primitives: a Tutorial
 
 
-* Basics of Python/SAGE
+* 1) Basics of Python/SAGE
 See the notes for the exercise session of Monday, in particular the section on
 [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/BF-Exercises#41-dealing-with-finite-fields-in-sage][dealing with finite fields]].
 
-** Univariate polynomials
+** 1.1) Univariate polynomials
 Here is how you can generate a univariate polynomial in a finite field of size =q=.
 #+BEGIN_SRC python
 q = 17 # for example
@@ -19,7 +19,7 @@ print( pol( gf(21) ) )
 
 Note a difference from the $q = 2^n$ case we saw before: the =fetch_int= method is replaced by the "call" function of the finite field (i.e., we use the finite field instance like a normal python function). Doing this with a finite field of small characteristic is a bad idea: =gf(x)= is the finite field element corresponding to =x % q=: particularly fun in characteristic 2...
 
-** Duck typing
+** 1.2) Duck typing
 Python uses /duck typing/ ("if it walks like a duck and quacks like a duck, then it's probably a duck"); meaning that there is no real type check: if the input to a function provides an interface that allows it to be processed, then the execution carries on.
 
 For example, consider the following basic function.
@@ -33,8 +33,8 @@ The output of =cube(3)= should be easy to guess, however, what happens if you gi
 - a string, say ="bla"= ? It fails: the operation ="bla"**3= is not defined.
 - the generator of a polynomial ring, so the =X= defined above? It works! =X**3= is defined, so it returns it.
 
-* The univariate case
-** The MiMC block cipher
+* 2) The univariate case
+** 2.1) The MiMC block cipher
 MiMC (pronounced like "meme C") is a simple block cipher defined over $F_q$: its round function is simply x \rightarrow (x+k_i)^d. In what follows, we consider a variant we will call miniMiMC. It is defined for any field size q, has both plaintext and master key taken from $F_q$, and then uses the following:
 - the subkeys are such that $k_i = K+i$, where $K$ is the master key, and where the first round is round 0;
 - d is the smallest integer such that x^d is a non-linear bijective monomial; and
@@ -47,7 +47,7 @@ MiMC (pronounced like "meme C") is a simple block cipher defined over $F_q$: its
   - =MiMC(1, 0) = 2911=
   - =MIMC(0, 2) = 431=
 
-** Generating polynomials
+** 2.2) Generating polynomials
 Add the following to the start of your script.
 
 #+BEGIN_SRC python
@@ -58,7 +58,7 @@ X = F.polynomial_ring("X").gen()
 
 - Q? (2) :: What happens if you call =MiMC(X, 2)=? If it doesn't return a polynomial, then amend your implementation of MiMC for it to work.
 
-** Generating polynomial generators
+** 2.3) Generating polynomial generators
 In practice, AO primitives are usually defined for a lot of field sizes. Then, depending on the field size, different parameters are set (here, the exponent). It is then convenient to use /object oriented programming/.
 
 #+BEGIN_SRC python
@@ -97,7 +97,7 @@ for p in [2**12-5, 2**31-1]:
     print(y, E_k.decrypt(y, 0))
 #+END_SRC
 
-** Basic algebraic attack
+** 2.4) Basic algebraic attack
 Let's tweak your implementation of miniMiMC even more. Python (and thus, SAGE) allow optional arguments in functions, including in function constructors. This is achieved using the following syntax.
 
 #+BEGIN_SRC python
@@ -129,14 +129,113 @@ As you can see, =.roots()= returns a list of tuples where the first element is a
 
 - Q? (8) :: Write a function that, given only some plaintext/ciphertext pairs obtained using a round-reduced miniMiMC encryption, returns the secret =K=. Start with a low number of rounds for a proof of concept, and then see how far you can go!
 
-* The multivariate case
-** CONTINUE Declaring a system of multivariate equations
-The =polynomial_ring= method of the =GF= class can conveniently take a list as input. We can thus write the following. Note the use of =.gens()= instead of =.gen()= !
+* 3) The multivariate case
+** 3.1) Declaring a system of multivariate equations
+For more information, head over to the [[https://doc.sagemath.org/html/en/reference/polynomial_rings/sage/rings/polynomial/multi_polynomial_ideal.html][sage documentation]].
+
+We first need to declare the ring of polynomials in the variables we want, over the field we are interested. While the =polynomial_ring= method of the =GF= class can work, it lacks some features (in particular, the choice of monomial ordering).
+
+Instead, we directly use the class =PolynomialRing=. It is initialized with a field, and a list of variable names, as shown below. Note the use of =.gens()= with a =s= instead of =.gen()= since there are multiple generators!
 
 #+BEGIN_SRC python
-X, Y = GF(2**31-1).polynomial_ring(["X", "Y"]).gens()
+F = GF(2**12-5)
+X, Y = PolynomialRing(F, ["X", "Y"]).gens()
 print(X, Y)
 print(X*Y**2 + X + 3*Y + 2)
+#+END_SRC
+
+Since the input we give to the =polynomial_ring= is simply a list of strings corresponding to the names of the variables, we can build one by hand. Run the following commands:
+
+#+BEGIN_SRC python
+F = GF(2**12-5)
+polynomial_unknowns_names = []
+for i in range(0, 3):
+    polynomial_unknowns_names.append("X_" + str(i))
+X = PolynomialRing(F, polynomial_unknowns_names).gens()
+print(X)
+for i in range(0, len(X)):
+    print("var number ", i, " =", X[i])
+#+END_SRC
+
+or the following one if you prefer to show of with python one-liners.
+
+#+BEGIN_SRC python
+F = GF(2**12-5)
+X = PolynomialRing(F,
+                   ["X_{}".format(i) for i in range(0, 3)]
+                   ).gens()
+print(X)
+#+END_SRC
+
+It is then easy to write-down a system of multivariate equations, or rather, a list of multivariate polynomials that are intended to be equal to 0:
+
+#+BEGIN_SRC python
+F = GF(2**12-5)
+X = PolynomialRing(F,
+                   ["X_{}".format(i) for i in range(0, 3)]
+                   ).gens()
+system_of_equations = [
+    X[0]**3 * X[1] + X[2] - 2, 
+    X[1]**2 + X[3] - 3,
+    X[0] + X[1] + X[2]**3 + X[3] - 4,
+    X[0] + X[1]*X[2]*X[3] - 1
+]
+#+END_SRC
+
+We can then generate the ideal generated by this system of equations in the most straightforward way.
+
+#+BEGIN_SRC python
+I = ideal(system_of_equations)
+#+END_SRC
+
+This object then has useful methods:
+
+#+BEGIN_SRC python
+I.groebner_basis()    # returns a list of polynomials corresponding to
+                      # the Gröbner basis of I for a specific ordering
+len(I.normal_basis()) # returns the ideal degree D_I
+I.variety()           # returns the content of the variety of I, i.e.,
+                      # in practice, the solutions of the system of
+                      # equations
+#+END_SRC
+
+Finally, it is possible to change the monomial ordering, but this has to be done when setting up the =PolynomialRing= instance:
+
+#+BEGIN_SRC python
+X = PolynomialRing(F,
+                   ["X_{}".format(i) for i in range(0, 3)],
+                   order="lex" # <----- where the magic happens
+                   ).gens()
+#+END_SRC
+
+The value of =order= can then be one of several things:
+- ="lex"= for lexicographic ordering,
+- ="deglex"= for an ordering that sorts first the terms by overall degree, and then in lexicographic order,
+- ="degrevlex"= the same but with reversed lexicographic ordering,
+- all of these are shortcuts to build the correct =TermOrder= instance.
+
+- TermOrder? (9) :: What is the length of the Gröbner basis of this ideal? 
+
+- Q? (10) :: It is possible to change the monomial ordering at the construction of the =PolynomialRing= instance by adding the argument =order = "lex"= (or any other valid ordering). What is the length of the Gröbner basis for different ordering? What is the degree of the polynomials in them?
+
+- Q? (11) :: In SAGE, the ideal degree D_I is given by the length of the "normal basis": =len(I.normal_basis())=. How does the ideal degree change when the ordering of the polynomial changes?
+
+** Custom ordering
+The =TermOrder= object implicitly built when specifying the =order= optional parameter can also be built manually, which in particular allows custom orderings.
+
+Consider the following system of equations:
+
+#+BEGIN_SRC python
+X = PolynomialRing(F,
+                   ["X_{}".format(i) for i in range(0, 3)],
+                   ).gens()
+eqns = [
+    X[0]**3 + X[1]*X[3] + X[2],
+    X[1]**3 + X[2]*X[0] + X[0],
+    X[2]**3 + X[0]*X[1] + X[1],
+    X[3]**18 + X[0] + X[1] + X[2]
+]
+
 #+END_SRC
 
 
@@ -160,7 +259,7 @@ print(X*Y**2 + X + 3*Y + 2)
      + u = \sum_i x_i
      + y_{2i} += 2u
      + y_{2i+1} -= 2u
-- reference implementation :: A reference implementation in C++[fn:1] that is unlikely to compile properly is provided below. 
+- reference implementation :: A reference implementation in C++ [1] that is unlikely to compile properly is provided below. 
 
 - Q (?) :: How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=? Make sure that your code is convincing!
 
@@ -234,5 +333,5 @@ public:
 
 * Footnotes
 
-[fn:1] Why not in SAGE? Because I had to suffer through reference implementations in Rust, so you have to suffer too :P
+[1] Why not in SAGE? Because I had to suffer through reference implementations in Rust, so you have to suffer too :P
 
