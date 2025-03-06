@@ -1,0 +1,289 @@
+% Time-stamp: <2025-03-06 18:59:29>
+
+
+%!SECTION! Packages needed 
+
+\usepackage{etex} % use when too many packages, vpv
+
+
+
+\usepackage[english]{babel}
+
+\usepackage{cmap}
+\usepackage{graphicx}
+\usepackage{color,colortbl,spot}
+\usepackage{pgfplots}
+
+
+% \usepackage{utopia}
+% Possible fonts:
+% mathptmx, helvet, bookman, chancery, charter, libertine, mathptm,
+% newcent, palatino, pifont, utopia
+% \usepackage[libertine]{newtxmath}
+% \usepackage[scaled=0.96]{zi4}
+
+
+\usepackage{hyperref}
+\usepackage{appendixnumberbeamer}
+
+\usepackage{booktabs} % tables, vpv
+\usepackage{subcaption}
+\usepackage{comment}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{array} % To use monospace font in arrays easily
+\newcolumntype{t}{>{\tt}c}
+
+
+
+\usepackage[absolute,overlay]{textpos}
+\usepackage{overpic}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{patterns}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{calc}
+\usetikzlibrary{math}
+\tikzstyle{fun}=[draw,very thick,fill=white]
+\tikzstyle{fork}=[shape=circle,inner sep=0pt,minimum size=3pt,fill=black]
+\tikzstyle{op}=[inner sep=2pt]
+\tikzset{every picture/.style={line width=1.2pt}}
+
+
+
+% !SECTION! Theme
+
+% \usefonttheme{professionalfonts}
+
+\usepackage{mathspec}
+\setmainfont{Inria Serif}[Scale=MatchLowercase]
+\setsansfont{Inria Sans}[Scale=MatchLowercase]
+\setmathfont(Digits,Latin,Greek,Symbols)[Scale=MatchLowercase]{Inria Serif}
+\setmathrm[Scale=MatchLowercase]{Inria Serif}
+
+
+%!SUBSECTION! Custom colors 
+\definecolor{light-gray}{RGB}{240, 240, 240}
+\definecolor{dark-gray}{gray}{0.45}
+\definecolor{navy}{RGB}{0, 40, 150}
+\definecolor{darkgreen}{RGB}{10, 150, 60}
+\definecolor{brown}{RGB}{120, 50, 10}
+\definecolor{darkred}{rgb}{0.8,0,0}
+\definecolor{mypink}{RGB}{200, 100, 100}
+
+
+
+%% Inner color theme: lily orchid rose
+%% Outer color theme: whale seahorse dolphin
+%% Full  color theme: albatross beaver beetle crane dove fly seagull wolverine
+% \usecolortheme{beaver}
+% \usecolortheme{orchid}
+
+
+%!SUBSECTION! Completely custom color theme 
+
+\definecolor{mycol1}{RGB}{231, 51, 18}
+\definecolor{mycol2}{RGB}{56,66,87}
+
+\definecolor{mybrown}{RGB}{170,105, 57}
+\definecolor{mydarkbrown}{RGB}{ 85, 36,  0}
+
+\definecolor{red}{RGB}{192,0,0}
+\definecolor{blue}{RGB}{ 50, 60,200}
+\definecolor{teal}{RGB}{170,105, 57}
+
+\setbeamercolor{section in toc}{fg=black,bg=white}
+\setbeamercolor{alerted text}{fg=red}
+\setbeamercolor*{palette primary}{fg=mycol2,bg=white}
+\setbeamercolor*{palette secondary}{fg=mycol1,bg=mycol2}
+\setbeamercolor*{palette tertiary}{bg=mycol2,fg=mycol1}
+\setbeamercolor*{palette quaternary}{fg=white,bg=mycol2} % smoothbars
+
+\setbeamercolor*{sidebar}{fg=darkred,bg=gray!15!white}
+
+% \setbeamercolor*{palette sidebar primary}{fg=darkred!10!black}
+% \setbeamercolor*{palette sidebar secondary}{fg=white}
+% \setbeamercolor*{palette sidebar tertiary}{fg=darkred!50!black}
+% \setbeamercolor*{palette sidebar quaternary}{fg=gray!10!white}
+
+
+\setbeamercolor{titlelike}{fg=mycol1,bg=gray!15!white}
+\setbeamercolor{frametitle}{fg=mycol1,bg=gray!15!white}
+\setbeamercolor{frametitle right}{bg=mycol2!60!white}
+
+\setbeamercolor{item}{fg=mycol1}
+\setbeamercolor{subitem}{fg=mycol1}
+\setbeamercolor{subsubitem}{fg=mycol1}
+
+\setbeamercolor*{separation line}{}
+\setbeamercolor*{fine separation line}{}
+
+\setbeamercolor{block title}{fg=mycol1!80!black,bg=mycol1!10!white}
+\setbeamercolor{block body}{bg=mycol1!2!white}
+\setbeamercolor{block title example}{fg=mycol2!80!black,bg=mycol2!10!white}
+\setbeamercolor{block body example}{bg=mycol2!5!white}
+
+%!SUBSECTION! Setting footer 
+
+\setbeamertemplate{footline}[frame number]
+% \setbeamertemplate{footline}
+% {
+% \leavevmode%
+% \hbox{%
+% \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+%   \usebeamerfont{author in head/foot}\insertshortauthor
+% \end{beamercolorbox}%
+% \begin{beamercolorbox}[wd=.7\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+%   \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+%   \hfill
+%   \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+% \end{beamercolorbox}}%
+% \vskip0pt%
+% }
+\beamertemplatenavigationsymbolsempty
+
+
+
+
+%!SECTION! Abbreviations
+
+\newcommand\smallcite[1]{{\color{gray} \footnotesize \cite{#1}}}
+
+
+%!SECTION! Custom frame types
+
+% Adding the plan at the beginning of each section starting from now
+\newcommand\tocStartsAppearingHere{ %
+  \begin{frame}[noframenumbering]
+    \frametitle{Outline}
+    \tableofcontents[
+    sectionstyle=show,
+    subsectionstyle=hide,
+    subsubsectionstyle=hide] 
+  \end{frame}
+
+  \AtBeginSection[] { %
+    % \begin{frame}[noframenumbering]
+    %   \frametitle{Outline}
+    %   \tableofcontents[
+    %   currentsection,
+    %   sectionstyle=show/shaded,
+    %   subsectionstyle=hide,
+    %   subsubsectionstyle=hide] 
+    % \end{frame}
+
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/hide/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+
+  \AtBeginSubsection[] { %
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/shaded/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+}
+
+
+\newcommand\myTitlePage{
+  \frame[plain]{\titlepage \addtocounter{framenumber}{-1}}
+}
+
+
+%!SECTION! Useful macros
+%=======================
+
+% source: https://tex.stackexchange.com/questions/28704/defining-a-newcommand-with-variable-name-inside-another-newcommand
+% usage: \defcolvar{f}{\mathcal{F}}{blue} creates new macro, \myf,
+% which expands into {\color{blue}\mathcal{F}}
+\newcommand{\defcolvar}[3]{%
+  \expandafter\newcommand\csname my#1\endcsname{{\color{#3} #2 }} %
+}
+
+\newcommand\cols[4]{%
+  \begin{columns}
+    \begin{column}{#1\textwidth}
+      \begin{center}
+        #3
+      \end{center}
+    \end{column}
+    \begin{column}{#2\textwidth}
+      \begin{center}
+        #4
+      \end{center}
+    \end{column}
+  \end{columns}
+}
+
+\newcommand\showThenHighlight[1]{\only<1>{ #1 }
+  \only<2>{\alert{\bfseries #1 }}}
+
+
+
+%!SUBSECTION! Math
+ 
+\newcommand\ftwo{\mathbb{F}_2}
+\newcommand\proba{\mathsf{Pr}}
+
+\newcommand\F{\mathbb{F}}
+\newcommand\Zmod[1]{\mathbb{Z}/ #1 \mathbb{Z}}
+\newcommand\field[1]{\mathbb{F}_{2^{#1}}}
+
+\newcommand\openbutterfly[3]{\mathsf{H}^{#1}_{#2, #3}}
+\newcommand\newbutterfly[1]{\mathsf{N}_{#1}}
+\newcommand\linearspan[1]{\langle #1 \rangle}
+\newcommand\rank{\mathsf{rank}}
+\newcommand\extract[1]{\mathcal{X}_{#1}}
+\newcommand\walshZeroes[1]{\mathcal{Z}_{#1}}
+\newcommand\ddtZeroes[1]{\mathcal{Z}^D_{#1}}
+
+\newcommand\lat[1]{\mathcal{W}_{#1}}
+\newcommand\ddt[1]{\mathcal{D}_{#1}}
+\newcommand\scalarprod[2]{#1 \cdot #2}
+
+\newcommand\spaceInput{\mathcal{V}}
+\newcommand\spaceOutput{\mathcal{V}^{\perp}}
+\newcommand\allSpaces[1]{\mathcal{S}_{#1}}
+\newcommand\admissible[1]{\mathcal{A}_{#1}}
+\newcommand\invariant[1]{\mathcal{J}_{#1}}
+\newcommand\codebook[1]{\Gamma_{#1}}
+\newcommand\eaMappings{\mathcal{M}^{\textrm{EA}}}
+\newcommand\nSpaces[1]{s_{#1}}
+\newcommand\msb[1]{\mathsf{MSB}(#1)}
+
+\newcommand\matSwap[1]{M_{#1}}
+\newcommand\maj{\textrm{maj}}
+\newcommand\twistable[1]{#1-twistable}
+\newcommand\twotwoMat[4]{\left[ \begin{array}{cc} #1 & #2 \\ #3 & #4 \end{array} \right]}
+
+\newcommand\tklog{TKlog}
+\newcommand\tklogmath[1]{\mathcal{TK}_{#1}}
+
+\newcommand\SBox{{\color{darkgreen}S}}
+\newcommand\trace[1]{\textrm{Tr}\left( #1 \right)}
+\newcommand\conference[1]{{\color{gray}(#1)}}
+
+\newcommand\anomaly{\mathcal{A}}
+\newcommand\symField[1]{\mathfrak{S}_{2^{#1}}}
+\newcommand\tu[1]{\mathsf{TU}_{#1}}
