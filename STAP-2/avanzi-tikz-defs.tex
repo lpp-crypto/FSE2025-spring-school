@@ -1,0 +1,139 @@
+\usepackage{tikz}
+
+\usetikzlibrary{arrows}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usetikzlibrary{chains}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{fit}
+\usetikzlibrary{intersections}
+\usetikzlibrary{matrix}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.arrows}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.multipart}
+\usetikzlibrary{shapes.symbols}
+\usetikzlibrary{trees}
+
+\tikzset{>=latex}
+
+\tikzset{
+  register/.style={
+    rectangle, 
+    draw=black, thick,
+    minimum height=1.66em, 
+    text centered,
+  },
+  block/.style={
+    rectangle, 
+    rounded corners, 
+    draw=black, thick,
+    minimum height=1.66em, 
+    text centered,
+  },
+  thickrect/.style={
+    rectangle, 
+    draw=black, thick,
+    minimum height=1.66em, 
+    text centered,
+  },
+  wideblock/.style={
+    block, 
+    minimum width=30mm,
+  },
+  midblock/.style={
+    block, 
+    minimum width=15mm,
+  },
+  midsquaredblock/.style={
+    block, 
+    rounded corners=false,
+    minimum width=15mm,
+  },
+  smallfunction/.style={
+    rectangle, 
+    rounded corners, 
+    draw=black, thick,
+    minimum height=1.66em, 
+    text centered,
+  },
+  function/.style={
+    smallfunction, 
+    minimum width=0.8cm,
+  },
+  widefunction/.style={
+    smallfunction,
+    minimum width=30mm,
+  },
+  cross line/.style={preaction={draw=white, -, shorten >=1pt, shorten <=1pt, line width=3.33pt}},
+  arrow/.style = {->,black,semithick},
+  doublearrow/.style = {<->,black,semithick},
+  worra/.style = {<-,black,semithick}, %% reverse arrow
+  connect/.style = {-,semithick},
+  decoration={brace},
+}
+
+\def\branch#1{\fill #1 circle [radius=1.5pt];}
+
+\tikzset{XOR/.style=
+          {draw,circle,thick,fill=white,scale=1.1,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.north) edge[thick] (\tikzlastnode.south)
+            (\tikzlastnode.east) edge[thick] (\tikzlastnode.west)}
+          },
+         AND/.style=
+          {draw,circle,thick,fill=white,scale=1.1,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.north) edge[thick] (\tikzlastnode.south east)
+            (\tikzlastnode.north) edge[thick] (\tikzlastnode.south west)}
+          },
+         OR/.style=
+          {draw,circle,thick,fill=white,scale=1.1,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.south) edge[thick] (\tikzlastnode.north east)
+            (\tikzlastnode.south) edge[thick] (\tikzlastnode.north west)}
+          },
+         NOT/.style=
+          {draw,circle,thick,fill=white,scale=1.1,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            ($(\tikzlastnode.west)+(1.5pt,-0.625pt)$) edge[thick,out=60,in=240,looseness=2] ($(\tikzlastnode.east)-(1.5pt,-0.625pt)$)
+            }
+          },
+         PLUS/.style=
+          {draw,rectangle,thick,fill=white,scale=1.5,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.north) edge[thick] (\tikzlastnode.south)
+            (\tikzlastnode.east) edge[thick] (\tikzlastnode.west)}
+          },
+         MINUS/.style=
+          {draw,rectangle,thick,fill=white,scale=1.5,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.east) edge[thick] (\tikzlastnode.west)}
+          },
+         TIMES/.style=
+          {draw,circle,thick,fill=white,scale=1.1,append after command={
+            [shorten >=\pgflinewidth, shorten <=\pgflinewidth,]
+            (\tikzlastnode.south west) edge[thick] (\tikzlastnode.north east)
+            (\tikzlastnode.south east) edge[thick] (\tikzlastnode.north west)}
+          },
+         MULT/.style=
+          {draw,circle,thick,fill=white,scale=1.1, append after command={
+             node[fill,circle,thick,inner sep=0.3mm] at (\tikzlastnode) {} }
+          },
+         COMP/.style=
+          {draw,circle,thick,fill=white,scale=1.1, append after command={
+             node[draw,circle,thick,inner sep=0.6mm] at (\tikzlastnode) {} }
+          },
+         COMPAST/.style=
+          {draw,circle,thick,fill=white,scale=1.1, append after command={
+             node[] at ($(\tikzlastnode)+(0.1pt,-0.3pt)$) (tmp) {\scalebox{1.333}{$\ast$}}  }
+          },
+         branch/.style=
+           {fill,shape=circle,minimum size=3pt,inner sep=0pt},
+         bit/.style=
+           {fill,shape=rectangle,minimum size=0.5mm,inner sep=0pt},
+}
+
+
