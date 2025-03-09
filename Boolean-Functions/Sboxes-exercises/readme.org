@@ -1,7 +1,7 @@
 #+TITLE: On the Practical Study of S-Boxes: a Tutorial
 
 * 1) Foreword
-This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]].
+This document was created for the [[https://casa.rub.de/en/spring-school-on-symmetric-cryptography][spring school]] co-located with [[https://fse.iacr.org/2025/][Fast Software Encryption 2025]] by me, [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]], and corresponds to the second exercise session on Boolean
 
 Exercise questions are marked with the symbol =Q?=, and are numbered.
 
