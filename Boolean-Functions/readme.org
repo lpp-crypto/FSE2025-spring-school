@@ -123,7 +123,7 @@ print(pretty_spectrum(spectrum))
 #+END_SRC
 
 
-- Q? (5) :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity?
+- Q? (5) :: Consider a 16x16 S-box built like an SPN which is equal to =S o L o S=, where =S= is the parallel application of the =PRINCE= S-box (it is in =sage.crypto.sboxes=), and =L= maps =(x0, x1, x2, x3)= to =(x0^t, x1^t, x2^t, x3^t)=, where =^= is the XOR, and where =t = x0^x1^x2^x3=. What is its differential uniformity? Be careful: the full DDT might not fit in your RAM!
 
 *Warning:* In SAGE, =^= is sometimes a XOR and sometimes an exponential. To solve this problem, you can use the =oplus= function of sboxU that directly calls the C++ =^=, so that =t = oplus(oplus(x0, x1), oplus(x2, x3))=.
 *** 3.2.b) Linear properties
@@ -225,7 +225,7 @@ def phi(x):
 
 #+END_SRC
 
-- Q? (11) :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Why do you think that is?
+- Q? (11) :: What is the algebraic degree of the =phi= function? Compute the degree of the iterates of =phi=. How does it evolve? Can you explain it by looking at the structure of =phi=?
 *** 3.2.d) Jackson Pollock representation
 (Yes, that's a thing; yes, it's my fault)
 
@@ -395,6 +395,5 @@ new_dillon = [0, 31, 9, 38, 52, 19, 45, 58, 35, 61, 46, 13, 50, 5, 42, 40, 57, 1
 
   Generate the lookup tables of all the functions $T_c$ of $F_2^3$ mapping $x$ to the low weight half of $D(x , c)$, where $D$ is the function of $F_2^6$ with LUT =new_dillon=.
 - Q? (20) :: How are the $T_c$ functions related to one another? Try plotting their DDT/LAT to get an idea.
-- Q? (21) :: Compute the LUT of the functions $U_c$ of $F_2^3$ such that, for all $(x,y)$, $D(x , y) ~=~ U_x(y) , T_y(x)$. 
 
 

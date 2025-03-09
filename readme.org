@@ -1,0 +1,8 @@
+#+TITLE: FSE-2025 Spring-School: Boolean Functions and Arithmetization-Oriented Symmetric Crypto
+
+
+This repository contains data corresponding to the classes of [[https://www.paris.inria.fr/secret/Anne.Canteaut/][Anne Canteaut]] on Boolean functions, and of [[https://who.paris.inria.fr/Leo.Perrin/][Léo Perrin]] on Arithmetization-Oriented symmetric primitives.
+
+- [[./Boolean-Functions/]] contains [[./Boolean-Functions/poly.pdf][the pdf]] corresponding to the class on Boolean Functions (Monday morning), [[./Boolean-Functions/exercises.pdf][the statement]] of the  pencil/paper exercise session on Boolean function, and the questions for the computer-based practical session on the use of SAGE and sboxU.
+- [[./STAP]] contains the data on Symmetric Techniques for Advanced Protocols, both the slides of the classes, and the statement of the exercise session.
+- [[./Tools/]] contains data on some of the the tools and skills that are relevant researchers in symmetric cryptography that will be discussed during the last exercise session (Friday afternoon).
