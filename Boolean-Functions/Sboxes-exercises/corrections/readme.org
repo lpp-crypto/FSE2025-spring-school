@@ -58,6 +58,30 @@ for delta_in in range(1, 256):
     
 #+END_SRC
 
+All the coefficients (0, 2 and 4) appear a number of times that is a multiple of 255 in the DDT of the AES. This can be seen by printing the differential spectrum using the =differential_spectrum= function, and then reducing the number of occurrences modulo 255.
+
+The explanation is straightforward: for a monomial x^d, all rows of the DDT contain the same distribution of coefficients. Indeed, the number of solutions x of
+
+(x+a)^d + x^d = b
+
+for a!=0 is the same as the number of solutions of
+
+a^d(y + 1)^d + a^d y^d = b
+
+where y = (x / a). Dividing both sides by a^d, we get
+
+(y+1)^d + y^d = b/a^d
+
+meaning that the distribution of the number of solutions when the output difference takes all possible values does not depend on the input difference. In short, this pattern comes from the fact that the AES is essentially a monomial, as can be seen in  [[https://en.wikipedia.org/wiki/Rijndael_S-box][wikipedia]].
+
+* Q 4
+** Statement
+
+** Answer
+#+BEGIN_SRC python :tangle scripts/Q2.py
+
+#+END_SRC
+
 
 * Q ?
 ** Statement
