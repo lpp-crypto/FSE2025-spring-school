@@ -1,0 +1,20 @@
+#+TITLE: Correction
+
+* Q1
+** Statement
+Print the lookup table of the S-box of the =PRESENT= block cipher. Print the length (in the Python sense) of this object. Anything strange?
+** Answer
+#+BEGIN_SRC python :tangle scripts/Q1.py
+from sage.crypto.sboxes import sboxes
+
+s = sboxes["PRESENT"]
+print(len(s))
+print(len(list(s)))
+      
+#+END_SRC
+
+Be careful, the SAGE =SBox= implements the =__len__= method in a counter-intuitive way: it returns the bit-length of the input, not the number of elements in the LUT!
+
+* Q2
+** Statement
+Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
