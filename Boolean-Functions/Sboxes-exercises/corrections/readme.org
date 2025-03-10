@@ -18,3 +18,16 @@ Be careful, the SAGE =SBox= implements the =__len__= method in a counter-intuiti
 * Q2
 ** Statement
 Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
+
+#+BEGIN_SRC python :tangle scripts/Q2.py
+from sage.crypto.sboxes import sboxes
+
+for k in sorted(sboxes.keys()):
+    if "SERPENT" in k:
+        print(k, list(sboxes[k]))      
+#+END_SRC
+
+This is straight-forward using Python string testing: we just test if ="SERPENT"= is in the name of the S-box, and print it if it's the case.
+
+* Q3
+** Statement
