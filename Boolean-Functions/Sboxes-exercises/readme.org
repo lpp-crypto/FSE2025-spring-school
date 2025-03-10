@@ -130,7 +130,7 @@ print(pretty_spectrum(spectrum))
 
 The *Linear Approximation Table (LAT)* of an S-box =s= over =n= bits is a two dimensional array =l= such that, in our case:
 #+BEGIN_SRC python
-l[a][b] = sum((-1)**(scalar_prod(a, x) + scalar_prod(b, S[x]) for x in range(0, 2**n))
+l[a][b] = sum((-1)**(scalar_prod(a, x) + scalar_prod(b, S[x])) for x in range(0, 2**n))
 #+END_SRC
 
 where =scalar_prod= implements a scalar product over $F_2^n$, such as $<a,x> = \sum_i a_i x_i \mod 2$.
