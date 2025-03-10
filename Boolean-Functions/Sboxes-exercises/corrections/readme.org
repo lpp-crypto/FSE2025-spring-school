@@ -18,7 +18,7 @@ Be careful, the SAGE =SBox= implements the =__len__= method in a counter-intuiti
 * Q2
 ** Statement
 Print the lookup tables of all the S-boxes of the =SERPENT= block cipher.
-
+** Answer
 #+BEGIN_SRC python :tangle scripts/Q2.py
 from sage.crypto.sboxes import sboxes
 
@@ -31,3 +31,39 @@ This is straight-forward using Python string testing: we just test if ="SERPENT"
 
 * Q3
 ** Statement
+Compute the differential spectrum of the S-box of the =AES=. Any pattern? Count how many times each coefficient appears in each row/column. Any pattern? Any idea why?
+** Answer
+#+BEGIN_SRC python :tangle scripts/Q3.py
+from sage.crypto.sboxes import sboxes
+from sboxU import *
+
+from collections import defaultdict
+
+s = list(sboxes["AES"])
+diff_spec = differential_spectrum(s)
+
+# All coefficients occur a number of times that is a multiple of 255
+for k in diff_spec.keys():
+    print(k, diff_spec[k] % 255)
+
+d = ddt(s)
+for delta_in in range(1, 256):
+    row_count = defaultdict(int)
+    for delta_out in range(0, 256):
+        row_count[d[delta_in][delta_out]] += 1
+    print("{:02x} : {}".format(
+        delta_in,
+        pretty_spectrum(row_count)
+    ))
+    
+#+END_SRC
+
+
+* Q ?
+** Statement
+
+** Answer
+#+BEGIN_SRC python :tangle scripts/Q2.py
+
+#+END_SRC
+
