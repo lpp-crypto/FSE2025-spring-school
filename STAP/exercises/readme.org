@@ -5,6 +5,8 @@
 See the notes for the exercise session of Monday, in particular the section on
 [[https://github.com/lpp-crypto/FSE2025-spring-school/tree/main/BF-Exercises#41-dealing-with-finite-fields-in-sage][dealing with finite fields]].
 
+When writing a script, be sure to include =from sage.all import *= at the top!
+
 ** 1.1) Univariate polynomials
 Here is how you can generate a univariate polynomial in a finite field of size =q=.
 #+BEGIN_SRC python
@@ -56,7 +58,7 @@ F = GF(p)
 X = F.polynomial_ring("X").gen()
 #+END_SRC
 
-- Q? (2) :: What happens if you call =MiMC(X, 2)=? If it doesn't return a polynomial, then amend your implementation of MiMC for it to work.
+- Q? (2) :: What happens if you call =MiMC(X, 2)=? If it doesn't return a polynomial, then amend your implementation of MiMC for it to work. Hint: don't rely on modulo operation, but instead assume your input is a finite finite field element.
 
 ** 2.3) Generating polynomial generators
 In practice, AO primitives are usually defined for a lot of field sizes. Then, depending on the field size, different parameters are set (here, the exponent). It is then convenient to use /object oriented programming/.
@@ -83,7 +85,7 @@ class miniMiMC:
 
 - Q? (3) :: fill in the =<something>= in the program above. Hint: the multiplicative inverse of =x= modulo =n= is given by the SAGE function =inverse_mod(x, n)=.
   
-As you can see, there is no modulus operation: the inputs must be of the correct type!
+As you can see, there is no modulus operation: it will not work if the inputs are not of the correct type!
 
 This class allows you to write code like the following.
 
@@ -208,38 +210,40 @@ X = PolynomialRing(F,
                    ).gens()
 #+END_SRC
 
-The value of =order= can then be one of several things:
+The value of =order= can then be one of several things, among which:
 - ="lex"= for lexicographic ordering,
 - ="deglex"= for an ordering that sorts first the terms by overall degree, and then in lexicographic order,
 - ="degrevlex"= the same but with reversed lexicographic ordering,
-- all of these are shortcuts to build the correct =TermOrder= instance.
+- all of these are shortcuts to build the correct =TermOrder= instance, for which the documentation is [[https://doc.sagemath.org/html/en/reference/polynomial_rings/sage/rings/polynomial/term_order.html][here]].
 
-- TermOrder? (9) :: What is the length of the Gröbner basis of this ideal? 
+- Q? (9) :: What is the length of the Gröbner basis of this ideal for ="lex"= (lexicographic ordering)?
 
 - Q? (10) :: It is possible to change the monomial ordering at the construction of the =PolynomialRing= instance by adding the argument =order = "lex"= (or any other valid ordering). What is the length of the Gröbner basis for different ordering? What is the degree of the polynomials in them?
 
 - Q? (11) :: In SAGE, the ideal degree D_I is given by the length of the "normal basis": =len(I.normal_basis())=. How does the ideal degree change when the ordering of the polynomial changes?
 
-** Custom ordering
-The =TermOrder= object implicitly built when specifying the =order= optional parameter can also be built manually, which in particular allows custom orderings.
-
-Consider the following system of equations:
+** Custom Ordering
+We can also build a custom graded monomial ordering by giving weights to the different variables.
 
 #+BEGIN_SRC python
+w0 = 1 # the weight to give to X_0
+w1 = 1 # the weight to give to X_1
+w2 = 1 # etc
+w3 = 1 # etc
+
+weighted_ordering = TermOrder("wdeglex", # <-- note the "w" for "weighted"!
+                              [w0, w1, w2, w3])
+
 X = PolynomialRing(F,
                    ["X_{}".format(i) for i in range(0, 3)],
+                   order=weighted_ordering,
                    ).gens()
-eqns = [
-    X[0]**3 + X[1]*X[3] + X[2],
-    X[1]**3 + X[2]*X[0] + X[0],
-    X[2]**3 + X[0]*X[1] + X[1],
-    X[3]**18 + X[0] + X[1] + X[2]
-]
-
 #+END_SRC
 
+- Q? (12) :: Answer questions 9-10-11 using monomial orderings with custom weights. For example, try to give a very high weight to one variable and not to the others: what happens then? Does the high-weight term appear often in the Groebner basis corresponding to this monomial ordering?
 
-** Attacking a toy primitive
+* Attacking a toy primitive
+** "SPeciFicATion"
 =Cobaye= is a permutation allowing an efficient low degree arithmetization of their verification. It is defined for any prime =p > 2**6=, and operates as follows.
 
 - interface :: =Cobaye= operates on =t= branches where =t= is at least 4, at most 10, and must be even.
@@ -261,9 +265,7 @@ eqns = [
      + y_{2i+1} -= 2u
 - reference implementation :: A reference implementation in C++ [1] that is unlikely to compile properly is provided below. 
 
-- Q (?) :: How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=? Make sure that your code is convincing!
-
-Some small hints:
+Some small hints for this section:
 - obviously, write clean code from the start so you can make sure that your equations are correct;
 - don't use a large value for =p=: it needlessly slows down computations, and may make the output harder to read;
 - choose =p= carefully to make sure that =d=3=, so that the equations are simpler.
@@ -330,6 +332,17 @@ public:
 }
 
 #+END_SRC
+
+** Questions
+The question we are trying to answer is the following:
+
+#+BEGIN_QUOTE
+How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=?
+#+END_QUOTE
+
+Indeed, recall that that D_I is the quantity we should base security arguments on, so we want to know what its value is---or at least try to estimate it.
+
+
 
 * Footnotes
 
