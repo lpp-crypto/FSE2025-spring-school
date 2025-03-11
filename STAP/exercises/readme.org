@@ -257,12 +257,12 @@ X = PolynomialRing(F,
      + y_i = x_i+y_{i-1}^2, for all i>1.
        Of course, d is the smallest non-linear bijective exponent.
 
-  2. The linear layer L operates as follows.
+  2. The linear layer L operates by iterating the following linear Feistel round L 2t times:
 
      L(x_0, ..., x_{t-1}) = (y_0, ..., y_{t-1}), with
-     + u = \sum_i x_i
-     + y_{2i} += 2u
-     + y_{2i+1} -= 2u
+     + y_i = x_{i+1} for i<t-1
+     + y_{t-1} = x_0 + x_{t-1} 
+        
 - reference implementation :: A reference implementation in C++ [1] that is unlikely to compile properly is provided below. 
 
 Some small hints for this section:
@@ -311,16 +311,14 @@ public:
                 // GFN layer
                 x[1] = (x[1] + pow_mod(x[0], d_inv, p)) % p;
                 for(unsigned int j=2; j<t; j+=1)
-                    x[j]   = (x[j] + x[j-1]*x[j+1]) % p; // square
-                // L layer
-                long int tmp = 0;
-                for(unsigned int j=0; j<t; j++)
-                    tmp = (tmp + x[j]) % p ;
-                tmp = (tmp * 2) % p;
-                for(unsigned int j=0; j<t; j+=2)
+                    x[j]   = (x[j] + x[j-1]*x[j+1]) % p; // squares
+                // L layer, consisting of 2t linear Feistel rounds
+                for(unsigned l=0; l < 2*t; l++)
                 {
-                    x[j  ] += tmp;
-                    x[j+1] -= tmp;
+                    long int tmp = (x[0] + x[t-1]) % p;
+                    for(unsigned int j=0; j<t-1; j++)
+                        x[j] = x[j+1];
+                    x[t-1] = tmp;
                 }
                 // add constant
                 for(unsigned int j=0; j<t; j++)
@@ -342,7 +340,11 @@ How does the degree of the ideal scale with the number of branches =t= and with 
 
 Indeed, recall that that D_I is the quantity we should base security arguments on, so we want to know what its value is---or at least try to estimate it.
 
-
+- Q? (13) :: Implement the round function of =Cobaye= in SAGE.
+- Q? (14) :: Implement the generation of the equations corresponding to the *verification* of =Cobaye=. Test them against the round function to check if actual input.output pairs satisfy the equations.
+- Q? (15) :: Try and estimate the value of D_I by asking SAGE to compute the size of the normal basis using the ="lex"= Groebner basis. How far can you go in terms of number of rounds and number of branches? No need to let it run for a long time, say more than 1min. If it is too slow for some parameters then you have your answer.
+- Q? (16) :: Design a weighted ordering that will allow you to get the Groebner basis for free, then implement it in SAGE. You use SAGE to test if it is indeed a Groebner basis (asking it to compute the Groebner basis of the ideal will be instantaneous if your ordering is correct since it does not need to do anything.
+- Q? (17) :: How does the degree of the ideal scale with the number of branches =t= and with the number of rounds =r=?
 
 * Footnotes
 
