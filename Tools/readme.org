@@ -1,7 +1,7 @@
 #+TITLE: The Tools of the Trade: Things a Symmetric Cryptographer Should Know How To Do
 
 * 1) Writing
-** 1.1) Editor
+** 1.1) Text Editor
 Pick one text editor (/maybe/ two), and learn how to use it *well*:
 - find, test, and then use the plugins that can be relevant to how you work,
 - figure out how to quickly navigate a file (jump to next section/jump to function),
@@ -100,6 +100,8 @@ regexp
 
 some nice options: -A, -B, -n, -i
 ** TODO 2.3) text manipulation
+sed
+
 wc
 
 cut -d $delimiter -f $index
@@ -108,11 +110,15 @@ cut -d $delimiter -f $indicesStart-indicesEnd
 ** TODO 2.4) scripting (sh/zsh)
 
 * 2) Programming
-** TODO Structuring a Program
+** TODO 2.1) Structuring a Program
+Distinction draft/proper writeup exists in programming
+
+Function = Lemma
+
 Tree structure: in the directory/subdirectories logic, also within a file (that's what you do when you write a paper).
 
 main program
-** Not so Basic Python Features
+** 2.2) Not so Basic Python Features
 *** TODO Object Oriented Programming
 *** TODO Detecting Problems Early
 assert
@@ -207,14 +213,8 @@ You can add some logic in the =__init__.py= script to decide which of the files 
 Basic case of functions.
 
 Classes is left as an exercise.
-** Some helpful links
+** 2.3) Some helpful links
 - =Rich= is a python module that can easily make your terminal output much prettier---and thus much easier to parse. [[https://rich.readthedocs.io/en/stable/introduction.html][Link]].
-* Important Algorithms
-** Collision finding
-- Generate then sort
-- Pollard rho
-** Ressources
-
 * Storing and Retrieving Information
 ** "Knowledge Management Systems"
 *** To keep notes
