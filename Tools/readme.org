@@ -56,24 +56,54 @@ Then, you can start learning about scripting for example here: [[https://computi
 
 - Q? (3) :: What is the cryptobib bibtex key for the paper introducing the =Griffin= hash function?
   
-- Q? (4) :: Write a short shell script taking as input part of the title of a paper and which returns its bibtex key. 
+- Q? (4) :: Write a short shell script taking as input part of the title of a paper and which returns its bibtex key. Hint: =grep <something> <some_file> -B10= will return the lines some file containing something /along with the 10 previous lines/.
 * 3) Basic Python Programming for Research
-** 2.1) Structuring a Program
-Distinction draft/proper writeup exists in programming
+** 3.1) The way I see it: Everything is a Tree
+The tree structure is a very convenient tool to organize data. It is what we use in papers (sections/subsections correspond to layers of nodes), and it is what computers use (tree of folders). They do make it easier to find what we look for.
 
-Function = Lemma
+For example, I always use the same structure for all my projects, where a "project" is basically (intended to become) a paper, or a standalone software library (in my case, =sboxU=). Each has its own folder in a specific directory, and then each folder has the same structure:
+- an orgmode file for my notes (*not* intended to be shared)
+- my latex drafts and basic scripts (hopefully intended to be shared at some point)
+- a folder called =shared= corresponding to a git repository that I use to share data with my co-author (if relevant, but usually is).
 
-Tree structure: in the directory/subdirectories logic, also within a file (that's what you do when you write a paper).
+I always separate in different folders the clean looking LaTeX, the not so-clean looking personal notes in org, and the scripts and programs I write.
 
-main program
+I also try to keep a clean distinction between what is still in draft form (LaTeX proof of a small lemma, messy SAGE script trying to generate some equations), and what is in a shareable form (clean write up of a full proof of a theorem, proper implementation of a primitive I am investigating). The aim then is to move the interesting draft stuff to a clean, shareable form at some point.
+  
+The tree structure can also be used within a non-LaTeX file: nothing prevents you from divided your SAGE scripts into section, subsections, etc., each with its own title. Doing this both forces you to keep some order in your script, and will help you (or you co-authors) in the future when looking back at your code.
+
 ** 2.2) Not so Basic Python Features
-*** TODO Object Oriented Programming
-*** TODO Detecting Problems Early
-assert
+*** Object Oriented Programming
+When some functionalities are dependent on data that remain constant across multiple calls to a  function (say, the block size of a block cipher, or the key of an instance), it can make sense to implement objects, as "object oriented programming" objects.
 
-Exception
+It is very easy to do so in Python since it is much more permissive than, say, C++. It is also much easier to shoot yourself in the foot, so be careful.
 
-*** TODO Optional Arguments
+A detailed tutorial is provided in the [[https://docs.python.org/3/tutorial/classes.html][python official documentation]].
+
+*** Detecting Problems Early
+You can verify that the inputs of a function have the correct shape (i.e. that the integers are within the appropriate bounds) using =assert=, e.g.
+
+#+BEGIN_SRC python
+def some_function(x):
+    assert x > 10
+    return x - 10
+#+END_SRC
+
+will fail if =x= is not greater than 10, and will do so in a *clear* way: it will specifically complain that =x= is not greater than 10.
+
+Putting such verification is a very good habit to take: they make the difference between immediately finding a bug, and spending 10min investigating what is happening.
+
+
+You can also interrupt the running of your program with a specific error message by "raising an exception" as follows:
+
+#+BEGIN_SRC python
+def some_function(x):
+    if x <= 10:
+        raise Exception("input x of some_function should be <=10, but is in fact equal to " + str(x))
+    return x - 10
+#+END_SRC
+
+Again, a wrong query will trigger a useful error message, thus cutting on debugging time.
 
 *** Creating a module
 You should strive for re-usability of your code. In order for it to be easy to reuse, the best way is to turn it into a module that you will simply load in your subsequent work. If your library is small, you can keep it to a single file. However, having a multi-file module is not that hard. Both are explained below.
@@ -155,12 +185,20 @@ sophisticated_function()
 print("other constant = ", other_constant)
 #+END_SRC
 
-You can add some logic in the =__init__.py= script to decide which of the files you want to import, for instance by testing which OS your user is using and/or which python/SAGE version.
+You can add some logic in the =__init__.py= script to provide additional functions, or to decide which of the files you want to import, for instance by testing which OS your user is using and/or which python/SAGE version.
 
-*** Adding Some C++ to It
+*** Question
+- Q? (5) :: Setup a python project where:
+  + a folder called =caesarEncryption= contains:
+    + a file =caesar.py= contains a class =Caesar= implementing the CAESAR cipher: it must take as input the shift amount (the "key") during construction, and must provide =encrypt(plaintext)= and =decrypt(ciphertext)= methods. The functions should raise an exception if the input is not a string containing letters only.
+    + a =__init__.py= file to turn the folder into a module, and which provides an additional function =get_encryption_oracle= that picks a shift amount at random and returns the corresponding =Caesar= instance.
+  + a script called =attack.py= which imports your =caesarEncryption= module, uses =get_encryption_oracle= to obtain a =Caesar= instance, and recovers the key.
+
+     (don't spend a ton of time figuring out digrams and stuff like that, the aim here is to play with python, not the subtleties of the cryptanalysis of the Caesar cipher)
+  
+** C++ Functions Within a SAGE Script
 Basic case of functions.
 
-Classes is left as an exercise.
 ** 2.3) Some helpful links
 - =Rich= is a python module that can easily make your terminal output much prettier---and thus much easier to parse. [[https://rich.readthedocs.io/en/stable/introduction.html][Link]].
 
