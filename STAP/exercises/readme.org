@@ -222,7 +222,7 @@ The value of =order= can then be one of several things, among which:
 
 - Q? (11) :: In SAGE, the ideal degree D_I is given by the length of the "normal basis": =len(I.normal_basis())=. How does the ideal degree change when the ordering of the polynomial changes?
 
-** Custom Ordering
+** 3.2) Custom Ordering
 We can also build a custom graded monomial ordering by giving weights to the different variables.
 
 #+BEGIN_SRC python
@@ -242,8 +242,8 @@ X = PolynomialRing(F,
 
 - Q? (12) :: Answer questions 9-10-11 using monomial orderings with custom weights. For example, try to give a very high weight to one variable and not to the others: what happens then? Does the high-weight term appear often in the Groebner basis corresponding to this monomial ordering?
 
-* Attacking a toy primitive
-** "SPeciFicATion"
+* 4) Attacking a toy primitive
+** 4.1) "SPeciFicATion"
 =Cobaye= is a permutation allowing an efficient low degree arithmetization of their verification. It is defined for any prime =p > 2**6=, and operates as follows.
 
 - interface :: =Cobaye= operates on =t= branches where =t= is at least 4, at most 10, and must be even.
@@ -331,7 +331,7 @@ public:
 
 #+END_SRC
 
-** Questions
+** 4.2) Questions
 The question we are trying to answer is the following:
 
 #+BEGIN_QUOTE

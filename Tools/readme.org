@@ -1,6 +1,6 @@
 #+TITLE: The Tools of the Trade: Things a Symmetric Cryptographer Should Know How To Do
 
-* 1) Writing
+* 1) Choose and Know your tools
 ** 1.1) Text Editor
 Pick one text editor (/maybe/ two), and learn how to use it *well*:
 - find, test, and then use the plugins that can be relevant to how you work,
@@ -17,100 +17,48 @@ Well known/popular general purpose text editors include:
 I personally prefer to stay away from web-based tools like =overleaf=: the internet can go down, and the editor itself cannot be customized.
 
 - Q? (1) :: Which text editor do you use? Why did you choose it?
-** 1.2) Beamer Hacks
-Along with the slides themselves, I have put their source code in the corresponding folder of this repository: feel free to "borrow" any macro you see there!
+** 1.2) Storing and Retrieving Information
+Throughout your PhD and beyond, you will accumulate a lot of information: notes on papers you read, experimental data you generated, libraries you've written, lemmas you derived (but maybe haven't published yet)... Are they stored somewhere? And are they stored in a way that allows you to easily find them when you need them?
 
-To compile it, you will need the "INRIA" font (see for example [[https://fonts.google.com/specimen/Inria+Serif][here]]) and =xelatex= rather than =pdflatex=. Simply remove the lines about setting the font in =style.tex= to get rid of this setting.
-*** 1.2.a) Beamer theme
-A gallery of all default beamer themes is available [[https://deic.uab.cat/~iblanes/beamer_gallery/][here]].
+*** 1.2.a) To keep notes
+For your notes, you could do something as simple as storing them as text files in a specific folder, and then use =grep= to retrieve the relevant ones. To go refine this method, some software tools exist that are intended to help you store your information, and index them using for example tags. To find such tools, ask your favourite search engine for "Knowledge Management System (KMS)" or "personal wiki".
 
-*** 1.2.b) Beamer Automated ToC Display
-Add the following code snippet before your beamer presentation to be able to display the outline of the talk, and then the outline of the relevant section in the beginning of each section. This display starts at the point at which you write =\tocStartsAppearingHere{}=.
+For this purpose, I use [[https://orgmode.org/][orgmode]], a functionality of my text editor (EMACS). In fact, the very file you are reading is a basic orgmode file! Orgmode is mostly tied to EMACS, but there are alternatives. I have also started using into another EAMCS package based on orgmode called [[https://www.orgroam.com/][orgroam]] to handle the storage and the linking of my notes.
 
-#+BEGIN_SRC latex
-\newcommand\tocStartsAppearingHere{ %
-  \begin{frame}[noframenumbering]
-    \frametitle{Outline}
-    \tableofcontents[
-    sectionstyle=show,
-    subsectionstyle=hide,
-    subsubsectionstyle=hide] 
-  \end{frame}
+An advantage of relying on plaintext files (even if they use some more advanced syntax like markdown or orgmode) is that they are easy to store in a git repository, meaning that you can easily share them across multiples machines (say, the desktop computer in your office and your laptop).
+*** 1.2.b) A general approach: accumulation
+To me, something a general "rule" to keep in mind when investigating something, or debugging, or anything else really, is the following:
 
-  \AtBeginSection[] { %
-    \begin{frame}[noframenumbering]
-      \frametitle{Plan of this Section}
-      \tableofcontents[
-      currentsection,
-      currentsubsection,
-      sectionstyle=show/shaded,
-      subsectionstyle=show/hide/hide,
-      subsubsectionstyle=hide]
-    \end{frame}
-  }
+#+BEGIN_QUOTE
+If you do something properly and in a reproducible way, you only need to do it once.
+#+END_QUOTE
 
-  \AtBeginSubsection[] { %
-    \begin{frame}[noframenumbering]
-      \frametitle{Plan of this Section}
-      \tableofcontents[
-      currentsection,
-      currentsubsection,
-      sectionstyle=show/shaded,
-      subsectionstyle=show/shaded/hide,
-      subsubsectionstyle=hide]
-    \end{frame}
-  }
-}
+As a consequence, whenever I run into a specific problem (say, display a table in a specific way in LaTeX), I put the necessary package and a comment explaining how it works (ideally with a link to where I found it) in a =tex= file that I use every time I am writing a LaTeX document. It takes a bit more time to solve a problem this way, but then I can effectively forget about it.
 
-#+END_SRC
+I also have "templates" of beamer presentations, and of C++/Python interface: files that I can just copy/paste when starting on such project to have a basic starting point every time.
+*** 1.2.c) cryptobib
+To simplify the storage of bibtex entry (and the collaboration with other people), I recommend you use [[https://cryptobib.di.ens.fr/][cryptobib]], a huge bibtex file maintained by a French university, that contains all the papers on =ePrint=, as well as all those published at IACR conferences. For the papers not in this file, you can keep an additional file, say =mybiblio.bib=, that contains all the bibtex entries you have used. That way, you don't need to look up the corresponding entries each time.
 
-*** 1.2.c) Use Some Color
-Syntax highlighting greatly helps with reading a program. Mathematics are not that different, and a well chosen color scheme can greatly help convey information. For example, if all the functions are blue, or if all the linear functions are in a different color from the non-linear ones, then your talk might be even clearer. The following macro helps with that:
-
-#+BEGIN_SRC latex
-\newcommand{\defcolvar}[3]{%
-  \expandafter\newcommand\csname my#1\endcsname{{\color{#3} #2 }} %
-}
-#+END_SRC
-
-To use it, add for example =\defcolvar{alpha}{\alpha}{red}= at any point of your code. From that point onwards, the macro =\myalpha= (note the =my=) will correspond to a red $\alpha$. Similarly, =\defcolvar{n}{n}{blue}= will allow you to use =\myn= to display a blue n. It simplifies the use of colors, and encourages the usage of consistent colorization throughout the code: both are good!
-*** 1.2.d) Dynamic Slides
-In beamer, each =frame= can be divided into multiplies =slides=. The slides are generated automatically using some macros inside the frame, and can for instance correspond to subsets of the content of the frame. A typical example is an =itemize= list where the items appear one after another: the frame is divided into slides, where each slide contains one more item than the previous one. To use this concept, you can use the following commands. Some of them take an index as an argument: it is the index of the slide in which you want things to happen. It can also be a range: =<2-4>= will have something happen on slides 2, 3 and 4 only; while =<2->= will have something from slide 2 and onwards.
-
-- =\pause= :: Creates a copy of the current slide, one with the content generated by parsing what is before the =\pause=, and one with the same content *and* the one that is after the =\pause=. The rendering is "aware" of what will be displayed next: the slides before and after the pause have an identical beginning.
-
-- =\onslide<index>{ ... }= :: The content of the macro will be displayed only on the given slide(s), but space will be reserved for it. For instance, the behaviour of =\pause= can be seen as wrapping what is after it in =\onslide<(i+1)->=, where =(i+1)= is replaced by the relevant index.
-
-- =\only<index>{ ... }= :: Same as =\onslide=, except nothing clever is done about space: the LaTeX code is contained is included in the given slides, and is completely ignored in the other ones.
-  
-- Q? (2) :: make a presentation with a slide containing a table where some numbers change weight (bold or not bold) as you hit "next".
-
-** 1.3) Other LaTeX Tricks
-*** 1.3.a) Setting some lengths
-In the following macros, =0.3cm= and =1.1= can be changed to whatever you like.
-- =\setlength\itemsep{0.3cm}= :: Sets the space between the different items. A high value means a high space, while a negative value brings the lines even closer together. Putting this after =\begin{itemize}=, =\begin{enumerate}= or =\begin{description}= (and before the =\item=) is a convenient way to set it for a single environment.
-- =\setlength\tabcolsep{0.3cm}= :: Sets the horizontal space between columns. A high value means they will be far apart. Put it inside the =table= environment (but outside the =tabular= one) to limit its scope.
-- ={\renewcommand\arraystretch{1.1} <your table>}= :: This multiplies the vertical size of a table by the given amount; very useful to increase the height of its rows. 
 * 2) Basic Command Line Tools
-** TODO 2.1) top and htop
-** TODO 2.2) grep
-Basic usage
+The command line allows you to operate on files and text in a repeatable way---in fact, you can write small programs that perform such manipulations for you. Instead of dealing with the information stored on your computer using a graphical interface (meaning, clicking on stuff), you instead do it by writing instructions in a specific language.
 
-regexp
+Just start a terminal, and then write =ls= in the prompt: it will display all the files and folders in your home directory. From there, you can look at the following tutorial to learn more.
 
-some nice options: -A, -B, -n, -i
-** TODO 2.3) text manipulation
-sed
+Redhat has some good tutorials on:
+- File manipulation: [[https://www.redhat.com/en/blog/10-more-commands-terminal][link]]
+- Text manipulation: [[https://www.redhat.com/en/blog/linux-text-manipulation-tools][link]]
 
-wc
+Then, you can start learning about scripting for example here: [[https://computing.stat.berkeley.edu/tutorial-using-bash/shell-programming.html][link]].
 
-cut -d $delimiter -f $index
+- Q? (2) :: Generate a directory called =useless-directory= that contains 20 files with name =file-<number>.txt=, where =<number>= is replaced by an increasing index, and where each file simply contains a single line, each with content ="this file has <number> line(s)"=.
 
-cut -d $delimiter -f $indicesStart-indicesEnd
-** TODO 2.4) scripting (sh/zsh)
+  Hint: start by creating a "master file" with content ="this file has REPLACE line(s)"= , and then use shell scripting and the =sed= command to generate 20 files. Alternatively, use the =echo= command and redirect its output.
 
-* 2) Programming
-** TODO 2.1) Structuring a Program
+- Q? (3) :: What is the cryptobib bibtex key for the paper introducing the =Griffin= hash function?
+  
+- Q? (4) :: Write a short shell script taking as input part of the title of a paper and which returns its bibtex key. 
+* 3) Basic Python Programming for Research
+** 2.1) Structuring a Program
 Distinction draft/proper writeup exists in programming
 
 Function = Lemma
@@ -215,23 +163,82 @@ Basic case of functions.
 Classes is left as an exercise.
 ** 2.3) Some helpful links
 - =Rich= is a python module that can easily make your terminal output much prettier---and thus much easier to parse. [[https://rich.readthedocs.io/en/stable/introduction.html][Link]].
-* Storing and Retrieving Information
-** "Knowledge Management Systems"
-*** To keep notes
-"personal wiki" "second brain"
-*** Accumulating knowledge
-=templates= folder?
 
-file with LaTeX macros
-** cryptobib
-*** Getting it
-basic download from https://cryptobib.di.ens.fr/
+* 2) LaTeX
+** 2.2) Beamer Hacks
+Along with the slides themselves, I have put their source code in the corresponding folder of this repository: feel free to "borrow" any macro you see there!
 
-as a git submodule
-*** Application
-- Q? :: What is the cryptobib bibtex key for the paper introducing the =Griffin= hash function?
-- Q? :: Write a short shell script taking as input part of the title of a paper and which returns its bibtex key. 
+To compile it, you will need the "INRIA" font (see for example [[https://fonts.google.com/specimen/Inria+Serif][here]]) and =xelatex= rather than =pdflatex=. Simply remove the lines about setting the font in =style.tex= to get rid of this setting.
+*** 1.2.a) Beamer theme
+A gallery of all default beamer themes is available [[https://deic.uab.cat/~iblanes/beamer_gallery/][here]].
 
+*** 1.2.b) Beamer Automated ToC Display
+Add the following code snippet before your beamer presentation to be able to display the outline of the talk, and then the outline of the relevant section in the beginning of each section. This display starts at the point at which you write =\tocStartsAppearingHere{}=.
+
+#+BEGIN_SRC latex
+\newcommand\tocStartsAppearingHere{ %
+  \begin{frame}[noframenumbering]
+    \frametitle{Outline}
+    \tableofcontents[
+    sectionstyle=show,
+    subsectionstyle=hide,
+    subsubsectionstyle=hide] 
+  \end{frame}
+
+  \AtBeginSection[] { %
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/hide/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+
+  \AtBeginSubsection[] { %
+    \begin{frame}[noframenumbering]
+      \frametitle{Plan of this Section}
+      \tableofcontents[
+      currentsection,
+      currentsubsection,
+      sectionstyle=show/shaded,
+      subsectionstyle=show/shaded/hide,
+      subsubsectionstyle=hide]
+    \end{frame}
+  }
+}
+
+#+END_SRC
+
+*** 1.2.c) Use Some Color
+Syntax highlighting greatly helps with reading a program. Mathematics are not that different, and a well chosen color scheme can greatly help convey information. For example, if all the functions are blue, or if all the linear functions are in a different color from the non-linear ones, then your talk might be even clearer. The following macro helps with that:
+
+#+BEGIN_SRC latex
+\newcommand{\defcolvar}[3]{%
+  \expandafter\newcommand\csname my#1\endcsname{{\color{#3} #2 }} %
+}
+#+END_SRC
+
+To use it, add for example =\defcolvar{alpha}{\alpha}{red}= at any point of your code. From that point onwards, the macro =\myalpha= (note the =my=) will correspond to a red $\alpha$. Similarly, =\defcolvar{n}{n}{blue}= will allow you to use =\myn= to display a blue n. It simplifies the use of colors, and encourages the usage of consistent colorization throughout the code: both are good!
+*** 1.2.d) Dynamic Slides
+In beamer, each =frame= can be divided into multiplies =slides=. The slides are generated automatically using some macros inside the frame, and can for instance correspond to subsets of the content of the frame. A typical example is an =itemize= list where the items appear one after another: the frame is divided into slides, where each slide contains one more item than the previous one. To use this concept, you can use the following commands. Some of them take an index as an argument: it is the index of the slide in which you want things to happen. It can also be a range: =<2-4>= will have something happen on slides 2, 3 and 4 only; while =<2->= will have something from slide 2 and onwards.
+
+- =\pause= :: Creates a copy of the current slide, one with the content generated by parsing what is before the =\pause=, and one with the same content *and* the one that is after the =\pause=. The rendering is "aware" of what will be displayed next: the slides before and after the pause have an identical beginning.
+
+- =\onslide<index>{ ... }= :: The content of the macro will be displayed only on the given slide(s), but space will be reserved for it. For instance, the behaviour of =\pause= can be seen as wrapping what is after it in =\onslide<(i+1)->=, where =(i+1)= is replaced by the relevant index.
+
+- =\only<index>{ ... }= :: Same as =\onslide=, except nothing clever is done about space: the LaTeX code is contained is included in the given slides, and is completely ignored in the other ones.
+  
+- Q? :: make a presentation with a slide containing a table where some numbers change weight (bold or not bold) as you hit "next".
+
+** 2.3) Other LaTeX Tricks
+*** 1.3.a) Setting some lengths
+In the following macros, =0.3cm= and =1.1= can be changed to whatever you like.
+- =\setlength\itemsep{0.3cm}= :: Sets the space between the different items. A high value means a high space, while a negative value brings the lines even closer together. Putting this after =\begin{itemize}=, =\begin{enumerate}= or =\begin{description}= (and before the =\item=) is a convenient way to set it for a single environment.
+- =\setlength\tabcolsep{0.3cm}= :: Sets the horizontal space between columns. A high value means they will be far apart. Put it inside the =table= environment (but outside the =tabular= one) to limit its scope.
+- ={\renewcommand\arraystretch{1.1} <your table>}= :: This multiplies the vertical size of a table by the given amount; very useful to increase the height of its rows. 
 * Working Together
 ** =git= (basics)
 ** Overleaf
