@@ -197,7 +197,9 @@ You can add some logic in the =__init__.py= script to provide additional functio
      (don't spend a ton of time figuring out digrams and stuff like that, the aim here is to play with python, not the subtleties of the cryptanalysis of the Caesar cipher)
   
 ** C++ Functions Within a SAGE Script
-Basic case of functions.
+It is possible to call C++ functions from a SAGE script, we "just" need to compile them directly using SAGE's builtin tools, and to provide additional information via some =cython= files.
+
+The simplest approach---or at least the one I use---consists in simply re starting each time from minimal working example which is available [[./cpp-python/][here]]. Head to the =cpp-folder= and read its readme file for more information. Feel free to reuse it for your own project!
 
 ** 2.3) Some helpful links
 - =Rich= is a python module that can easily make your terminal output much prettier---and thus much easier to parse. [[https://rich.readthedocs.io/en/stable/introduction.html][Link]].

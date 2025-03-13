@@ -1,0 +1,21 @@
+#+TITLE: A Minimum Working Program for C++/SAGE Interface
+#+AUTHOR: Léo Perrin <leo . perrin at inria . fr>
+
+
+
+This folder contains the following file:
+- [[./script.py]] is the "master script", intended to call both SAGE and C++ routines. It imports =cppLibrary=, which correspond to the folder with the same name.
+
+Then, the magic happens in the =cppLibrary= folder. It contains the following files.
+- [[./cppLibrary/cppModule.pxd]] which describes the interface of the C++ functions in python terms.
+- [[./cppLibrary/interface.pyx]] which describes how C++ function should be called in a language that SAGE can understand. SAGE will use its content to generate a new file called =cppLibrary.cpp=. *WARNING:* it might be tempting to call you main C++ file =cppLibrary.cpp= but SAGE will just write its own file over it, without any kind of warning. Be careful!
+- [[./cppLibrary/sources.cpp]]  which contains the C++ source code of the subroutines implemented in that language. Do *not* call it =cppLibrary.cpp=!
+- [[./cppLibrary/setup.py]] describes how the C++ code should be compiled. Be mindful of the places I marked with arrow in comments.
+- [[./cppLibrary/__init__.py]] turns the folder into a module, and imports the content of the C++ module itself.
+
+Then, simply =cd= into the =cppLibrary= and run the following command to compile the C++ part:
+#+BEGIN_SRC sh
+sage setup.py build_ext --inplace
+#+END_SRC
+
+Now go back into the directory containing =script.py=, and run it. It should work!
