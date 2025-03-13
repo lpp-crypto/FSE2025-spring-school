@@ -87,48 +87,55 @@
 
 \title{Algebraic Attacks: Theoretical Aspects}
 \author{Aurélien Bœuf,\inst{1} Léo Perrin\inst{1}}
+\titlegraphic{\includegraphics[height=1.1cm]{figures/inria}}
 
 \institute{\inst{1}Inria, France}
 
+
+
 \begin{document}
 
-\maketitle
 
-\begin{frame}{In this Presentation}
-  \begin{center}
-    \begin{tikzpicture}[ultra thick,xscale=.9]
-      \node (A1) at (0,0) {\bf Anemoi};
-      \node (A2) at (0,-.5) {Crypto23};
-      \node (B1) at (5,0) {\bf Griffin};
-      \node (B2) at (5,-.5) {Crypto23};
-      \node (C1) at (10,0) {\bf ArionHash};
-      \node (C2) at (10,-.5) {arXiv};
+{
+  \pagestyle{empty}
 
-      \pause
-      \draw[line width=.8mm, color=myred] (4,-1) -- (6,.5);
-      \draw[line width=.8mm, color=myred] (4,.5) -- (6,-1);
-      \node[text width=5cm, align=center] (D2) at (B2 |- 5,-2) {\textcolor{myred}{\textbf{Full-round break} of some instances}};
-      
-      \pause
-      \draw[line width=.8mm, color=myred] (9,-1) -- (11,.5);
-      \draw[line width=.8mm, color=myred] (9,.5) -- (11,-1);
-      \node[text width=5cm, align=center] (D3) at (C2 |- 5,-2) {\textcolor{myred}{\textbf{Full-round break} of some instances}};
-
-      \pause
-      \draw[line width=.8mm, color=myred, dashed] (-1,-1) -- (1,.5);
-      \draw[line width=.8mm, color=myred, dashed] (-1,.5) -- (1,-1);
-      \node[text width=5cm, align=center] (D1) at (A2 |- 5,-2) {\textcolor{myred}{\textbf{Maybe} full-round break?}};
-    \end{tikzpicture}
-  \end{center}
-
-  \pause\vspace{1cm}
-  \onslide<5->{
+  \maketitle
+  
+  \begin{frame}{In this Presentation}
     \begin{center}
-      { \Large How did this happen? }      
-    \end{center}
-  }
-\end{frame}
+      \begin{tikzpicture}[ultra thick,xscale=.9]
+        \node (A1) at (0,0) {\bf Anemoi};
+        \node (A2) at (0,-.5) {Crypto23};
+        \node (B1) at (5,0) {\bf Griffin};
+        \node (B2) at (5,-.5) {Crypto23};
+        \node (C1) at (10,0) {\bf ArionHash};
+        \node (C2) at (10,-.5) {arXiv};
 
+        \pause
+        \draw[line width=.8mm, color=myred] (4,-1) -- (6,.5);
+        \draw[line width=.8mm, color=myred] (4,.5) -- (6,-1);
+        \node[text width=5cm, align=center] (D2) at (B2 |- 5,-2) {\textcolor{myred}{\textbf{Full-round break} of some instances}};
+        
+        \pause
+        \draw[line width=.8mm, color=myred] (9,-1) -- (11,.5);
+        \draw[line width=.8mm, color=myred] (9,.5) -- (11,-1);
+        \node[text width=5cm, align=center] (D3) at (C2 |- 5,-2) {\textcolor{myred}{\textbf{Full-round break} of some instances}};
+
+        \pause
+        \draw[line width=.8mm, color=myred, dashed] (-1,-1) -- (1,.5);
+        \draw[line width=.8mm, color=myred, dashed] (-1,.5) -- (1,-1);
+        \node[text width=5cm, align=center] (D1) at (A2 |- 5,-2) {\textcolor{myred}{\textbf{Maybe} full-round break?}};
+      \end{tikzpicture}
+    \end{center}
+
+    \pause\vspace{0.5cm}
+    \onslide<5->{
+      \begin{center}
+        { \Large How did this happen? }      
+      \end{center}
+    }
+  \end{frame}
+}
 
 
 \tocStartsAppearingHere{}
@@ -136,7 +143,23 @@
 \section{Cryptanalysis as a Root-Finding Problem}
 
 
-\begin{frame}{Algebraic Attack? What is that?}
+\begin{frame}{Some Notations}
+  \defcolvar{x}{x}{blue}
+  \defcolvar{d}{d}{brown}
+  \defcolvar{alpha}{\alpha}{red}
+  \begin{equation*}
+    F(\myx_0, \myx_1, ..., \myx_{n-1}) ~=~ \sum_{\myd_0 \geq 0} ... \sum_{\myd_{n-1}\geq 0} \myalpha_{\myd_0,...,\myd_{n-1}} \underbrace{\prod_{j=0}^{n-1}\myx_j^{\myd_j}}_{\text{monomial}}
+  \end{equation*}
+
+  \begin{itemize}
+  \item $F$ is a \alert{multivariate polynomial}
+  \item Each \alert{monomial} is of degree $\sum_j \myd_j$
+  \item Each \alert{coefficient} $\myalpha_{\myd_0,...,\myd_{n-1}}$ is a field element.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Algebraic Attack: a first look at MiMC}
   \vfill
 
   \begin{center}
@@ -169,6 +192,23 @@
 
 
 \subsection{A Simple Case: CICO against Feistel-MiMC}
+
+
+\begin{frame}
+  \frametitle{CICO Problem}
+
+  \begin{center}
+    \textbf{C}onstrained \textbf{I}nput \textbf{C}onstrained \textbf{O}utput
+  \end{center}
+  
+  The CICO problem of size $c$ (capacity of the sponge) for a permutation $P$ consists in finding an input/output pair such that
+  \begin{Large}
+    \[ P(*,\ldots,*,\underbrace{0,\ldots,0}_{c \text{ elements}}) = (*',\ldots,*',\underbrace{0,\ldots,0}_{c \text{ elements}}) \]
+  \end{Large}
+
+  \pause 
+  Solving CICO of size $c$ \emph{should} take about ${\color{blue}q}^{c}$ operations.
+\end{frame}
 
 
 \begin{frame}{Let's Look at Feistel-MiMC}
@@ -278,7 +318,7 @@
       
       Several variables,
 
-      high degree!
+      not linear!
     \end{column}
     \hfill
     \begin{column}{0.65\textwidth}
@@ -299,7 +339,7 @@
 
         \vspace{0.2cm}
         
-        We denote it $I(p_0,...,p_{n-1})$.
+        We denote it $I(p_1,...,p_{k})$.
       \end{exampleblock}
     \end{column}
   \end{columns}
@@ -315,12 +355,25 @@
 \subsection{Setting Up a Mathematical Machinery}
 
 \begin{frame}{Using the Ideal Structure}
+  \defcolvar{i}{i}{blue}
+  \defcolvar{I}{I}{blue}
+  \defcolvar{r}{r}{brown}
+  \defcolvar{R}{R}{brown}
+  \begin{exampleblock}{Ideal}
+    An ideal $\myI$ is a subgroup of a ring $\myR$ such that:
+    \begin{equation*}
+      \forall \myi \in \myI, \forall \myr \in \myR, \myi \times \myr \in \myR~.
+    \end{equation*}
+  \end{exampleblock}
+
+  \vspace{0.1cm}\pause
+  
   \begin{alertblock}{Over the integer}
     There is an ideal you all know: $n\mathbb{Z} = \{ ..., -3n, -2n, -n, 0, n, 2n, 3n, ... \}$.
 
     \pause
 
-    Every $x \in \mathbb{Z}$ can be written as $\mya + \myb$, where $\mya \in n\mathbb{Z}$ and $\myb \in$ \pause $\mathbb{Z} / n\mathbb{Z}$.
+    Every $x \in \mathbb{Z}$ can be written \textbf{uniquely} as $\mya + \myb$, where $\mya \in n\mathbb{Z}$ and $\myb \in$ \pause $\mathbb{Z} / n\mathbb{Z}$.
   \end{alertblock}
 
   \pause
@@ -328,7 +381,7 @@
   \begin{center}
     We want to simplify our lives and work in
     \begin{equation*}
-      \mathbb{F}[\textcolor{mylb1}{x_1},\textcolor{myor}{x_2},\ldots,\textcolor{myred}{x_N}]  / I(p_0,...,p_{n-1})~.
+      \mathbb{F}[\textcolor{mylb1}{x_1},\textcolor{myor}{x_2},\ldots,\textcolor{myred}{x_N}]  / I(p_1,...,p_{k})~.
     \end{equation*}
   \end{center}
   
@@ -385,26 +438,20 @@
 \end{frame}
 
 
-\begin{frame}
-  \frametitle{Monomial orderings}
+\begin{frame}{Monomial orderings}
 
-  In $\mathbb{F}[\textcolor{mylb1}{x},\textcolor{myor}{y},\textcolor{mypurp}{z}]$:
   \begin{itemize}
   \item \textbf{LEXicographical:} Compare degree of highest variable, then second-highest, etc. 
     \[ \textcolor{mylb1}{x} <_{\text{lex}} \textcolor{myor}{y} <_{\text{lex}} \textcolor{mypurp}{z} \;,\ \ \textcolor{mylb1}{x}^{1000}  \onslide<1>{\ \;?\ }\onslide<2->{\hspace{-1.5em}<_{\text{lex}}} \textcolor{myor}{y} \pause \;,\ \ \textcolor{mylb1}{x}^6 \textcolor{myor}{y} \textcolor{mypurp}{z} \onslide<2>{\ \;?\ }\onslide<3->{\hspace{-1.5em}<_{\text{lex}}} \textcolor{myor}{y}^2 \textcolor{mypurp}{z} \pause \;. \]
   \pause \item \textbf{Graded LEX:} Compare \textbf{total degree} first, then switch to lex if equality.
-
     \[ \textcolor{mylb1}{x} <_{\text{lex}} \textcolor{myor}{y} <_{\text{lex}} \textcolor{mypurp}{z} \;,\ \ \textcolor{myor}{y} \onslide<4>{\ \ \ ?\ }\onslide<5->{\hspace{-1.8em}<_{\text{glex}}} \textcolor{mylb1}{x}^2 \pause \;,\ \ \textcolor{mypurp}{z}^2 \onslide<5>{\ \ \ ?\ }\onslide<6->{\hspace{-1.8em}<_{\text{glex}}} \textcolor{mylb1}{x}\textcolor{myor}{y}\textcolor{mypurp}{z} \pause \;,\ \ \textcolor{mylb1}{x}\textcolor{myor}{y} <_{\text{glex}} \textcolor{mylb1}{x}\textcolor{mypurp}{z} <_{\text{glex}} \textcolor{myor}{y}\textcolor{mypurp}{z}\;. \]
-
-  \pause \item \textbf{Weighted Graded LEX:} Compare the \textbf{weighted sum} of degrees, then lex if equality. Examples for $\textcolor{mylb1}{x} <_{\text{lex}} \textcolor{myor}{y} <_{\text{lex}} \textcolor{mypurp}{z}$ and $\mathbf{wt}(\textcolor{mylb1}{x}) = 6,  \mathbf{wt}(\textcolor{myor}{y}) = 1, \mathbf{wt}(\textcolor{mypurp}{z}) = 2$:
+    \pause \item \textbf{Weighted Graded LEX:} Compare the \textbf{weighted sum} of degrees, then lex if equality. Examples for $\textcolor{mylb1}{x} <_{\text{lex}} \textcolor{myor}{y} <_{\text{lex}} \textcolor{mypurp}{z}$ and $\mathbf{wt}(\textcolor{mylb1}{x}) = 6,  \mathbf{wt}(\textcolor{myor}{y}) = 1, \mathbf{wt}(\textcolor{mypurp}{z}) = 2$:
 
   \[ \textcolor{mylb1}{x} \onslide<7>{\ \ \ \ \;?\ }\onslide<8->{\hspace{-2em}>_{\text{wglex}}} \textcolor{myor}{y}\textcolor{mypurp}{z}^2 \pause \text{ because }\mathbf{wt}(\textcolor{mylb1}{x})=6 \text{ and }\mathbf{wt}(\textcolor{myor}{y}\textcolor{mypurp}{z})=\mathbf{wt}(\textcolor{myor}{y}) + 2\mathbf{wt}(\textcolor{mypurp}{z}) = 5 \;. \]
 
   \vspace{-.8cm}
   \[\textcolor{mylb1}{x}^2 \onslide<8>{\ \ \ \ \;?\ }\onslide<9->{\hspace{-2em}<_{\text{wglex}}} \textcolor{mypurp}{z}^6 \pause \text{ because }\mathbf{wt}(\textcolor{mylb1}{x}^2)=\mathbf{wt}(\textcolor{mypurp}{z}^6)=12 \text{ and }\textcolor{mylb1}{x}^2 <_{\text{lex}} \textcolor{mypurp}{z}^6 \;. \]
-
   \end{itemize}
-  
 \end{frame}
 
 \begin{frame}
@@ -516,7 +563,12 @@
   4. Find the roots in $\mathbb{F}_\q$ of $g_N^*$ with univariate methods, etc.
 
   \pause \medskip
-  \textbf{Remark:} Steps 2 and 3 are both computationally costly, but not for the same reasons. For most AOPs, step 2 dominates, \textbf{but we can skip it}.
+  Steps~2 and~3 are both computationally costly, but not for the same reasons. For most AOPs, \alert{step~2 dominates in practice}...
+
+  \pause
+  \begin{center}
+    ... or does it?
+  \end{center}
 \end{frame}
 
 
@@ -528,70 +580,49 @@
 
 
 
-\begin{frame}
-  \frametitle{CICO Problem}
+% \begin{frame}
+%   \frametitle{Block Cipher}
+%   \begin{figure}
+%     \begin{tikzpicture}
 
-  \textbf{CICO Problem of size $c$ (capacity of the sponge) for permutation $P$}:
-
-  \begin{Large}
-    \[ P(*,\ldots,*,\underbrace{0,\ldots,0}_{c \text{ elements}}) = (*',\ldots,*',\underbrace{0,\ldots,0}_{c \text{ elements}}) \]
-  \end{Large}
-
-  \pause 
-  Solving CICO of size $c$ gives collisions to the hash function.
-
-  \medskip
-  \textcolor{myred}{$\Rightarrow$ Multivariate attack: solve CICO faster than brute-force attacks using a model of $P$.}
-  
-  \textcolor{myred}{$\Rightarrow$ We focus on $c = 1$.}
-
-    \[ \textcolor{myred}{P(x,*,\ldots,*,0) = (*',\ldots,*',0).}\]
-\end{frame}
-
-
-\begin{frame}
-  \frametitle{Block Cipher}
-  \begin{figure}
-    \begin{tikzpicture}
-
-      % Data path
-      \node (XOR-1)[XOR,scale=1.2] {}; \node [left of=XOR-1] (p)
-      {$\textcolor{mylb1}{s}$}; \node (f-1) [right
-      of=XOR-1,draw,rectangle,thick,rounded corners] {$f$};
-      \path (p) edge (XOR-1); \path (XOR-1) edge (f-1);
+%       % Data path
+%       \node (XOR-1)[XOR,scale=1.2] {}; \node [left of=XOR-1] (p)
+%       {$\textcolor{mylb1}{s}$}; \node (f-1) [right
+%       of=XOR-1,draw,rectangle,thick,rounded corners] {$f$};
+%       \path (p) edge (XOR-1); \path (XOR-1) edge (f-1);
     
-      \node (XOR-2)[right of=f-1,XOR,scale=1.2] {}; \path (f-1)
-      edge (XOR-2); \node (f-2) [right of=XOR-2] {};
-      \path (XOR-2) edge (f-2) ; \node (dots)[right
-      of=XOR-2,node distance=1.5cm] {$\dots$};
+%       \node (XOR-2)[right of=f-1,XOR,scale=1.2] {}; \path (f-1)
+%       edge (XOR-2); \node (f-2) [right of=XOR-2] {};
+%       \path (XOR-2) edge (f-2) ; \node (dots)[right
+%       of=XOR-2,node distance=1.5cm] {$\dots$};
 	
-      \node (XOR-3)[right of=dots,XOR,scale=1.2,node distance=1.5cm]
-      {}; \path (dots) edge (XOR-3) ; \node (f-3) [right
-      of=XOR-3,draw,rectangle,thick,rounded corners] {$f$};
-      \path (XOR-3) edge (f-3);
+%       \node (XOR-3)[right of=dots,XOR,scale=1.2,node distance=1.5cm]
+%       {}; \path (dots) edge (XOR-3) ; \node (f-3) [right
+%       of=XOR-3,draw,rectangle,thick,rounded corners] {$f$};
+%       \path (XOR-3) edge (f-3);
 
-      \node (XOR-4)[right of=f-3,XOR,scale=1.2] {}; \path (f-3)
-      edge (XOR-4); \node [right of=XOR-4] (c) {}; \path (XOR-4)
-      edge (c);
+%       \node (XOR-4)[right of=f-3,XOR,scale=1.2] {}; \path (f-3)
+%       edge (XOR-4); \node [right of=XOR-4] (c) {}; \path (XOR-4)
+%       edge (c);
 
-      %% Subkeys
-      \node (k-0) [above=1.3cm of XOR-1] {}; \path (k-0) edge
-      node[right] {\small $\textcolor{myred}{c_{0}}$} (XOR-1);
+%       %% Subkeys
+%       \node (k-0) [above=1.3cm of XOR-1] {}; \path (k-0) edge
+%       node[right] {\small $\textcolor{myred}{c_{0}}$} (XOR-1);
 
-      \node (k-1) [above=1.3cm of XOR-2] {}; \path (k-1) edge
-      node[right] {\small $\textcolor{myred}{c_{1}}$} (XOR-2);
+%       \node (k-1) [above=1.3cm of XOR-2] {}; \path (k-1) edge
+%       node[right] {\small $\textcolor{myred}{c_{1}}$} (XOR-2);
 
-      \node (k-2) [above=1.3cm of XOR-3] {}; \path (k-2) edge
-      node[right] {\small $\textcolor{myred}{c_{N-2}}$} (XOR-3);
+%       \node (k-2) [above=1.3cm of XOR-3] {}; \path (k-2) edge
+%       node[right] {\small $\textcolor{myred}{c_{N-2}}$} (XOR-3);
 
-      \node (k-3) [above=1.3cm of XOR-4] {}; \path (k-3) edge
-      node[right] {\small $\textcolor{myred}{c_{N-1}}$} (XOR-4);
+%       \node (k-3) [above=1.3cm of XOR-4] {}; \path (k-3) edge
+%       node[right] {\small $\textcolor{myred}{c_{N-1}}$} (XOR-4);
 
-    \end{tikzpicture}
-    \caption{\centering The ever-popular Block Cipher construction.}
-  \end{figure}
+%     \end{tikzpicture}
+%     \caption{\centering The ever-popular Block Cipher construction.}
+%   \end{figure}
   
-\end{frame}
+% \end{frame}
 
 
 % \begin{frame}
@@ -1148,7 +1179,7 @@
   \begin{itemize}
   \item Idea from a 2022 paper by Jérémy Berthomieu, Vincent Neiger, Mohab Safey El Din.
     
-  \item Strategy: for the smallest variable $\textcolor{olive}{x}$, compute the characteristic polynomial $\chi$ of the linear operation $P \mapsto \text{Red}_<(\textcolor{olive}{x} \cdot P, G)$.
+  \item Strategy: for the smallest variable $\textcolor{olive}{x}$, compute the characteristic polynomial $\chi$ of the \alert{linear} operation $P \mapsto \text{Red}_<(\textcolor{olive}{x} \cdot P, G)$.
 
   \item $\chi(\textcolor{olive}{x})=0$. Generically, this is \textbf{exactly} the univariate polynomial in $\textcolor{olive}{x}$ in the reduced GB of ${\textcolor{myor}{I}}$ in \textbf{lex} order.
 
@@ -1193,13 +1224,14 @@
   \frametitle{Computing the Characteristic Polynomial}
   \textbf{Step 2:} Given $T$, compute $\text{det}(\textcolor{olive}{X}I - M)$.
 
-  $\implies$ $T$ is sparse. With block matrix reasoning, this reduces to computing the determinant of a polynomial matrix of size $D_1 = \textcolor{purple}{d_1\cdots d_N}$.
+  \begin{itemize}
+    \setlength\itemsep{0.2cm}
+  \item $T$ is sparse. With block matrix reasoning, this reduces to computing the determinant of a polynomial matrix of size $D_1 = \textcolor{purple}{d_1\cdots d_N}$.
 
-  $\implies$ In Griffin and Arion, $\textcolor{olive}{d_0}$ is by far the highest degree, so this reduces complexity by a lot.
+  \item In Griffin and Arion, $\textcolor{olive}{d_0}$ is by far the highest degree, so this reduces complexity by a lot.
 
-  $\implies$ This can be computed with fast linear algebra, in $\mathcal{O}(\textcolor{olive}{d_0}\text{log}(\textcolor{olive}{d_0})^2\textcolor{purple}{d_1^\omega\cdots d_N^\omega})$.
-
-  
+  \item This can be computed with fast linear algebra, in $\mathcal{O}(\textcolor{olive}{d_0}\text{log}(\textcolor{olive}{d_0})^2\textcolor{purple}{d_1^\omega\cdots d_N^\omega})$.
+  \end{itemize}  
 \end{frame}
 
 % \section[Results]{Experimental and Theoretical Results}
@@ -1214,7 +1246,7 @@
   \item \texttt{matGen}: Compute the multiplication matrix $T$. \textbf{Complexity hard to evaluate}.
   \item \texttt{polyDet}: Compute the characteristic polynomial $\chi$ of $T$.
 
-    $\implies$ \textbf{Longest step aside from} \texttt{matGen}.
+     \textbf{Longest step aside from} \texttt{matGen}.
   \item \texttt{uniSol}: Find roots of $\chi$ with Berlekamp-Rabin in $\mathcal{O}(D_{\textcolor{myor}{I}}\text{log}(D_{\textcolor{myor}{I}})\text{log}(\p D_{\textcolor{myor}{I}}))$.
   \end{enumerate}
 
@@ -1240,7 +1272,7 @@
 \end{frame}
 
 
-\section{Combining an Root Finding with Other Techniques}
+\section{Combining Root Finding with Other Techniques}
 
 
 \begin{frame}{Skipping Rounds}
