@@ -1,4 +1,4 @@
-% Time-stamp: <2025-03-07 18:23:03>
+% Time-stamp: <2025-03-13 10:50:40>
 
 
 \documentclass[presentation,aspectratio=1610]{beamer}
@@ -127,7 +127,7 @@
         \draw[color=gray] (0, 0) rectangle (5, 2.5) node[pos=0.85,above] {Protocols};
       }
       \onslide<4->{
-        \draw[color=blue] (0, 0) rectangle (4.5, 2) node[pos=0.85,above] {Modes of operation};
+        \draw[color=blue] (0, 0) rectangle (4.5, 2) node[pos=0.75,above] {Modes of operation};
       }
       \onslide<5->{
         \draw[color=red] (0, 0) rectangle (4, 1) node[pos=0.6,above] {Cryptographic Primitives};
@@ -236,7 +236,7 @@
 
 \begin{frame}{Securing Computation}
   \begin{center}
-    {\Large More and more protocols intend to secure whole \alert{computations}.}
+    {\Large More and more protocols intend to secure \alert{computations}.}
 
     \vspace{0.8cm}
     
@@ -295,8 +295,7 @@
   \pause
   
   \begin{alertblock}{Example}
-    Secret sharing
-    %!TODO! mpc example: secret sharing 
+    Shamir's secret sharing
   \end{alertblock}
 
   \pause
@@ -393,9 +392,11 @@
 \begin{frame}
   \frametitle{A not basic at all example of arithmetization}
   
-  \begin{exampleblock}{Plonk}
-    Not all arithmetizations allow the same operations!
-  \end{exampleblock}
+  \begin{center}
+    The cost of each operation depends on the arithmetization!
+
+    Plonk $\neq$ R1CS
+  \end{center}\pause
   
   \begin{center}
     \includegraphics[width=10cm]{./figures/skyscraper}
@@ -446,8 +447,8 @@
       \draw (10, -4) node {Plonk} ;
       % AO?
       \pause
-      \draw[color=navy] (-2, -3) rectangle (12, 0) ;
-      \draw[color=navy,style=dotted] (8, -5) rectangle (12, -3) ;
+      \draw[color=navy] (-2, -3) -- (-2, 0) -- (12, 0)  -- (12, -5) -- (8, -5) -- (8, -3) -- (-2, -3);
+      % \draw[color=navy] (8, -5) rectangle (12, -3) ;
       \draw[color=navy] (9.5, 0.2) node{Arithmetization-Oriented} ;
       \pause
       \draw[color=brown,style=dashed] (-1.9, -2.9) rectangle (6.5, -0.7) ;
@@ -475,7 +476,7 @@
       \pause                    % TFHE
       \draw[color=red] (6, -4) node{$\mathbb{Z} / m \mathbb{Z}$} ;
       \pause                    % ZK
-      \draw[color=red] (11, -2.5) node{$\mathbb{F}_p$};
+      \draw[color=red] (11, -2.5) node{$\mathbb{F}_p$, $\mathbb{F}_{2^n}$};
       \onslide<1->
     \end{tikzpicture}
   \end{center}
@@ -517,7 +518,13 @@
 
 
 \begin{frame}{Transciphering}
-  % !TODO! Transciphering
+  \begin{center}
+    \includegraphics[width=10cm]{./figures/transciphering}
+
+    {\small source: \emph{Transistor: a TFHE-friendly Stream Cipher}
+
+      \url{https://eprint.iacr.org/2025/282}}
+  \end{center}
 \end{frame}
 
 
@@ -628,16 +635,21 @@
 
 \subsection{MPC: low multiplicative depth, and PCF}
 
-\begin{frame}{The Case of Masking}
-  %!TODO! block cipher for masking 
+\begin{frame}{Trojan Resilience}
+    \begin{center}
+    \includegraphics[width=10cm]{./figures/moe}
+
+    {\small source: \emph{MOE: Multiplication Operated Encryption with Trojan Resilience}
+
+      \url{https://tosc.iacr.org/index.php/ToSC/article/view/8834}}
+  \end{center}
 \end{frame}
 
-\begin{frame}{Low Multiplicative Depth}
-  
+\begin{frame}{MPC-Friendly Encryption}
   \begin{columns}
-    \begin{column}{0.6\textwidth}
+    \begin{column}{0.7\textwidth}
       \begin{description}
-        \setlength\itemsep{0.6cm}
+        \setlength\itemsep{0.2cm}
       \item<1->[LowMC] \cite{EC:ARSTZ15} $\myq = 2$ 
 
         {\small SPN with partial layer of quadratic S-boxes.
@@ -655,11 +667,15 @@
 
       {\small Generalized Feistel network with low degree round function.
 
-      Optimized specifically for hardware masking.}
+        Optimized specifically for hardware masking.}
+      
+    \item<4->[MOE] \cite{ToSC:BFLLPS21} $\myq = 2^{128}, {\color{blue}m}=2^{128}$
+
+      {\small Dedicated structure with linear operations in $\mathbb{F}_\myq$ and $\Zmod{\myq}$. Intended for hardware trojan resilience.}
       \end{description}
     \end{column}
     \hfill
-    \begin{column}{0.35\textwidth}
+    \begin{column}{0.28\textwidth}
       \onslide<1->{
         \includegraphics[width=4cm]{./figures/LowMC}
 
@@ -706,21 +722,6 @@
 
 \subsection{ZK: Hash function with AO verification}
 
-\begin{frame}{??}
-
-  %!TODO! an AO hash function within a ZK-protocol
-\end{frame}
-
-\begin{frame}{Arithmetization-Oriented Verification: CCZ-equivalence?}
-  \vfill
-
-  \begin{center}
-    \includegraphics[width=8cm]{./figures/simpsons}
-  \end{center}
-  
-  \vfill
-\end{frame}
-
 
 \begin{frame}{ZK-Friendly Hash Functions}
   
@@ -760,11 +761,23 @@
 
           source:
           {\small
-            \emph{``The Algebraic Freelunch: Efficient {Gr{\"o}bner} Basis Attacks Against Arithmetization-Oriented Primitives''}}
+            \emph{Cryptanalysis and design of symmetric primitives
+defined over large finite fields}, PhD thesis of C. Bouvier}
         \end{center}
       }
     \end{column}
   \end{columns}
+\end{frame}
+
+
+\begin{frame}{Arithmetization-Oriented Verification: CCZ-equivalence?}
+  \vfill
+
+  \begin{center}
+    \includegraphics[width=8cm]{./figures/simpsons}
+  \end{center}
+  
+  \vfill
 \end{frame}
 
 
@@ -790,17 +803,17 @@
   \pause\vspace{1cm}
   
   \begin{center}
-    \large{\alert{We need more cryptanalysis! \pause \textbf{MOARR!1!!}}}
+    \large{\alert{We need more cryptanalysis! \pause \textbf{MORE!!}}}
 
     \pause\vspace{1cm}
-    \textbf{Thank you!}
+    \textbf{Coffee Break!}
   \end{center}
 \end{frame}
 
 \appendix
 
 \bibliographystyle{alpha}
-\bibliography{../abbrev2,../crypto,../biblio}
+\bibliography{../../abbrev2,../../crypto,../biblio}
 
 
 \end{document}
