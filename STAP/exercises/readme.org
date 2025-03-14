@@ -174,7 +174,7 @@ It is then easy to write-down a system of multivariate equations, or rather, a l
 #+BEGIN_SRC python
 F = GF(2**12-5)
 X = PolynomialRing(F,
-                   ["X_{}".format(i) for i in range(0, 3)]
+                   ["X_{}".format(i) for i in range(0, 4)]
                    ).gens()
 system_of_equations = [
     X[0]**3 * X[1] + X[2] - 2, 
