@@ -45,9 +45,9 @@ MiMC (pronounced like "meme C") is a simple block cipher defined over $F_q$: its
 - Q? (1) :: Implement MiMC over $F_p$, where $p=2^{12}-5$, and $d=3$. 
 
   If your implementation of =MiMC(plaintext, master_key)= is correct, then:
-  - =MiMC(0, 0) == 525=
-  - =MiMC(1, 0) = 2911=
-  - =MIMC(0, 2) = 431=
+  - =MiMC(0, 0) == 3604=
+  - =MiMC(1, 0) = 239=
+  - =MIMC(0, 2) = 1198=
 
 ** 2.2) Generating polynomials
 Add the following to the start of your script.
